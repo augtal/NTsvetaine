@@ -16,16 +16,10 @@ class CreateAdvertisementsTable extends Migration
         Schema::create('advertisements', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->float('area', 6,2);
-            $table->string('rooms',20);
-            $table->string('floor',15);
             $table->unsignedInteger('category'); //butas, 
             $table->unsignedInteger('type'); //parduoda, perka, nuomuoja 
-            $table->string('buildingType',15);
-            $table->string('heating',30);
             $table->string('adress');
             $table->foreignId('website'); //svetaine, 
-            $table->text('description');
             $table->string('thumbnail'); //gonna be saved in local file storage
             $table->double('long', 9, 6);
             $table->double('lat', 8, 6);
