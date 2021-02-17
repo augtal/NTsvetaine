@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class AdvertCategoriesSeeder extends Seeder
 {
@@ -13,6 +14,11 @@ class AdvertCategoriesSeeder extends Seeder
      */
     public function run()
     {
-        //
+        DB::table('advert_categories')->insert([
+            'title'=>'Butas'
+        ]);
+        DB::table('advert_categories')->insert([
+            'title'=>'Namas'
+        ]);
     }
 }
