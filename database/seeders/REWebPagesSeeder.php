@@ -19,7 +19,7 @@ class REWebPagesSeeder extends Seeder
             'url'=>'https://domoplius.lt/skelbimai/butai?action_type=1&page_nr=1',
             'category'=>1,
             'type'=>1,
-            'website'=>1,
+            'r_e_websites_id'=>1,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
