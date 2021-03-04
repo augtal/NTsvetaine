@@ -22,3 +22,5 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('/scrapper', 'WebScrapperController@index')->name('scrapper');
+
+Route::get('/adslist', 'AdvertisementController@showAdvertisementList')->name('advertisementList');
