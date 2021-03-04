@@ -5,10 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Goutte\Client;
 
-#enumeratoriu lenteles
-use App\Models\AdvertCategories;
-use App\Models\AdvertTypes;
-
 #lenteles i kurias bus saugojama info
 use App\Models\Advertisement;
 use App\Models\AdvertisementDetails;
@@ -20,9 +16,6 @@ use App\Models\REWebsites;
 
 class WebScrapperController extends Controller
 {
-    private $results = Array();
-    private $i = 0;
-
     public function index(){
         $REWebsiteList = REWebPages::all()->toArray();
 
@@ -30,7 +23,7 @@ class WebScrapperController extends Controller
             $this->scrape($website);
         }
 
-        echo "End of index";
+        echo "End of scraping";
     }
 
     private function scrape($website){
@@ -49,35 +42,22 @@ class WebScrapperController extends Controller
 
         $adAmount = (int)substr($crawler->filter('div.cntnt-box-fixed > div.listing-title > span')->text(), 1, -1);
         $adsPerPage = 30;
+        
+        $a=0;
 
-        $pages = $adAmount / $adsPerPage;
-        $pages = 1;
+        if($adAmount % $adsPerPage > 0) $pages = (int)($adAmount / $adsPerPage + 1);
+        else $pages = $adAmount / $adsPerPage;
+
+        $pages = 2;
 
         for ($i = 1; $i <= $pages; $i++) {
-            $url = $website['url'];
+            $url = substr($website['url'], 0, -1) . $i;
             $crawler = $client->request('GET', $url);
 
-            $adsInfo = Array();
-            $crawler->filter('div.item')->each(function ($node) use (&$adsInfo){
-                $info = Array();
+            $adsInfo = $this->getPageAdInfo($crawler);
 
-                $info['url'] = $node->filter('.item-section.fr > h2 > a')->link()->getUri();
-
-                $info['title'] = $node->filter('.item-section.fr > h2 > a')->text();
-                $info['area'] = (double)substr($node->filter('.item-section.fr > div.param-list > div > span')->text(), 0, -3);
-
-                $price = $node->filter('.item-section.fr > div.price > p.fl > strong')->text();
-                $price = substr($price, 0, -4); # to remove € with a space before 
-                $price = str_replace(' ', '', $price);
-                $info['price'] = (int)$price;
-                
-                $info['imgUrl'] = $node->filter('div > div.thumb.fl > a > img')->attr('src');
-
-                array_push($adsInfo, $info);
-            });
-
-            $i = 1;
             foreach($adsInfo as $info){
+                $l = "";
                 if( strpos($info['url'], 'domoplius') !== FALSE){
                     #check if add exists
                     $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->first();
@@ -86,6 +66,7 @@ class WebScrapperController extends Controller
                         $adID->touch();
                         AdvertisementDetails::where('advertisementID', $adID->id)->first()->touch();
                         $this->updateAdvertisementPrices($info['price'], $adID->id);
+                        $l = "U |";
                     }
                     else{
                         #create new
@@ -94,13 +75,36 @@ class WebScrapperController extends Controller
                         $id = $this->insertToAdvertisement($website, $info, $detailedInfo);
                         $this->insertToAdvertisementDetails($detailedInfo, $id);
                         $this->insertToAdvertisementPrices($info, $id);
+                        $l = "C |";
                     }
                     
                 }
-                $i += 1;
-                echo "finished " . $i . '\n';
+                $a += 1;
+                echo $l . " finished " . $a . '<br>';
             }
         }
+    }
+
+    private function getPageAdInfo($crawler){
+        $adsInfo = Array();
+        $crawler->filter('div.item')->each(function ($node) use (&$adsInfo){
+            $info = Array();
+
+            $info['url'] = $node->filter('.item-section.fr > h2 > a')->link()->getUri();
+
+            $info['title'] = $node->filter('.item-section.fr > h2 > a')->text();
+            $info['area'] = (double)substr($node->filter('.item-section.fr > div.param-list > div > span')->text(), 0, -3);
+
+            $price = $node->filter('.item-section.fr > div.price > p.fl > strong')->text();
+            $price = substr($price, 0, -4); # to remove € with a space before 
+            $price = str_replace(' ', '', $price);
+            $info['price'] = (int)$price;
+            
+            $info['imgUrl'] = $node->filter('div > div.thumb.fl > a > img')->attr('src');
+
+            array_push($adsInfo, $info);
+        });
+        return $adsInfo;
     }
 
     private function insertToAdvertisement($website, $adsInfo, $detailedInfo){
@@ -117,9 +121,7 @@ class WebScrapperController extends Controller
         $advertisement->lat = $detailedInfo['lat'];
         $advertisement->save();
 
-        $id = Advertisement::where('title', $adsInfo['title'])->first()->id;
-
-        return $id;
+        return $advertisement->id;
     }
 
     private function insertToAdvertisementDetails($detailedInfo, $id){
@@ -146,7 +148,7 @@ class WebScrapperController extends Controller
 
     private function updateAdvertisementPrices($adsPrice, $id){
         #updates old price updated_at field, by imitating a change
-        $oldPrice = AdvertisementPrices::where('advertisementID', $id)->orderBy('updated_at', 'desc')->first()->touch();
+        AdvertisementPrices::where('advertisementID', $id)->orderBy('id', 'desc')->first()->touch();
 
         #sets new price
         $newPrice = new AdvertisementPrices();
@@ -211,7 +213,7 @@ class WebScrapperController extends Controller
         $crawler = $client->request('GET', $mapLink);
 
         $longAndLat = $crawler->filter('#container > section > div.small-wrapper > div.content-wrapper > main > script:nth-child(5)')->text();
-        if (preg_match_all("/\d{1,3}\.\d{6}/", $longAndLat, $values)){
+        if (preg_match_all("/\d{1,3}\.\d{1,6}/", $longAndLat, $values)){
             $results['long'] = (double)$values[0][0];
             $results['lat'] = (double)$values[0][1];
         }
