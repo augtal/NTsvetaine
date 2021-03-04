@@ -15,10 +15,10 @@ class AdvertTypesSeeder extends Seeder
     public function run()
     {
         DB::table('advert_types')->insert([
-            'title'=>'Parduodama'
+            'title'=>'Parduodamas'
         ]);
         DB::table('advert_types')->insert([
-            'title'=>'Nuomuojama'
+            'title'=>'Nuomuojamas'
         ]);
     }
 }

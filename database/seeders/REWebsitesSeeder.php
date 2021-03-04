@@ -17,7 +17,7 @@ class REWebsitesSeeder extends Seeder
     {
         DB::table('r_e_websites')->insert([
             'title'=>'Domoplius',
-            'URL'=>'https://domoplius.lt/',
+            'url'=>'https://domoplius.lt/',
             'logo'=>'http://static.domoplius.lt/domoplius/img/svg/domoplius/domoplius-logo.svg',
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')

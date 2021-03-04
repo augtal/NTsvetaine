@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\REWebPages;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -16,7 +17,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             REWebsitesSeeder::class,
             AdvertTypesSeeder::class,
-            AdvertCategoriesSeeder::class
+            AdvertCategoriesSeeder::class,
+            REWebPagesSeeder::class
         ]);
     }
 }

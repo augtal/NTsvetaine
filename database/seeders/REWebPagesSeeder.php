@@ -16,19 +16,12 @@ class REWebPagesSeeder extends Seeder
     public function run()
     {
         DB::table('r_e_web_pages')->insert([
-            'title'=>'Domoplius',
-            'url'=>'https://domoplius.lt/',
-            'logo'=>'http://static.domoplius.lt/domoplius/img/svg/domoplius/domoplius-logo.svg',
+            'url'=>'https://domoplius.lt/skelbimai/butai?action_type=1',
+            'category'=>1,
+            'type'=>1,
+            'website'=>1,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
-
-        /*$table->id();
-            $table->string('url');
-            $table->unsignedInteger('category'); //butas, 
-            $table->unsignedInteger('type'); //parduoda, perka, nuomuoja 
-            $table->foreignId('website'); //svetaine, 
-            $table->timestamps();
-        */
     }
 }

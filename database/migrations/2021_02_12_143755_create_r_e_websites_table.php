@@ -16,7 +16,7 @@ class CreateREWebsitesTable extends Migration
         Schema::create('r_e_websites', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('URL');
+            $table->string('url');
             $table->string('logo');
             $table->timestamps();
         });
