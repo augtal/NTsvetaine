@@ -64,7 +64,7 @@ class WebScrapperController extends Controller
                     if($adID != null){
                         #update price
                         $adID->touch();
-                        AdvertisementDetails::where('advertisementID', $adID->id)->first()->touch();
+                        AdvertisementDetails::where('advertisement_id', $adID->id)->first()->touch();
                         $this->updateAdvertisementPrices($info['price'], $adID->id);
                         $l = "U |";
                     }
@@ -114,7 +114,7 @@ class WebScrapperController extends Controller
         $advertisement->category = $website['category'];
         $advertisement->type = $website['type'];
         $advertisement->area = $adsInfo['area'];
-        $advertisement->website = $website['website']; 
+        $advertisement->r_e_websites_id = $website['r_e_websites_id']; 
         $advertisement->thumbnail = $adsInfo['imgUrl'];
         $advertisement->url = $adsInfo['url'];
         $advertisement->long = $detailedInfo['long'];
@@ -127,7 +127,7 @@ class WebScrapperController extends Controller
     private function insertToAdvertisementDetails($detailedInfo, $id){
         $details = new AdvertisementDetails();
 
-        $details->advertisementID = $id;
+        $details->advertisement_id = $id;
         $details->adress = $detailedInfo['adress'];
         $details->rooms = $detailedInfo['rooms'];
         $details->floor = $detailedInfo['floor'];
@@ -141,18 +141,18 @@ class WebScrapperController extends Controller
     private function insertToAdvertisementPrices($adsInfo, $id){
         $prices = new AdvertisementPrices();
 
-        $prices->advertisementID = $id;
+        $prices->advertisement_id = $id;
         $prices->price = $adsInfo['price'];
         $prices->save();
     }
 
     private function updateAdvertisementPrices($adsPrice, $id){
         #updates old price updated_at field, by imitating a change
-        AdvertisementPrices::where('advertisementID', $id)->orderBy('id', 'desc')->first()->touch();
+        AdvertisementPrices::where('advertisement_id', $id)->orderBy('id', 'desc')->first()->touch();
 
         #sets new price
         $newPrice = new AdvertisementPrices();
-        $newPrice->advertisementID = $id;
+        $newPrice->advertisement_id = $id;
         $newPrice->price = $adsPrice;
         $newPrice->save();
     }
