@@ -15,7 +15,7 @@ class CreateAdvertisementDetailsTable extends Migration
     {
         Schema::create('advertisement_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('advertisementID'); //svetaine, 
+            $table->foreignId('advertisement_id'); //svetaine, 
             $table->string('adress');
             $table->string('rooms',20);
             $table->string('floor',25);
@@ -26,7 +26,7 @@ class CreateAdvertisementDetailsTable extends Migration
 
             $table->timestamps();
             
-            $table->foreign('advertisementID')->references('id')->on('advertisements');
+            $table->foreign('advertisement_id')->references('id')->on('advertisements');
         });
     }
 

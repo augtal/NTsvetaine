@@ -18,12 +18,12 @@ class CreateREWebPagesTable extends Migration
             $table->string('url');
             $table->unsignedInteger('category'); //butas, 
             $table->unsignedInteger('type'); //parduoda, perka, nuomuoja 
-            $table->foreignId('website'); //svetaine, 
+            $table->foreignId('r_e_websites_id'); //svetaine, 
             $table->timestamps();
             
             $table->foreign('category')->references('id')->on('advert_categories');
             $table->foreign('type')->references('id')->on('advert_types');
-            $table->foreign('website')->references('id')->on('r_e_websites');
+            $table->foreign('r_e_websites_id')->references('id')->on('r_e_websites');
         });
     }
 
