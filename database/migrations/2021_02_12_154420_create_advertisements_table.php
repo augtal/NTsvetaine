@@ -19,7 +19,7 @@ class CreateAdvertisementsTable extends Migration
             $table->unsignedInteger('category'); //butas, 
             $table->unsignedInteger('type'); //parduoda, perka, nuomuoja 
             $table->float('area', 6,2);
-            $table->foreignId('website'); //svetaine, 
+            $table->foreignId('r_e_websites_id'); //svetaine, 
             $table->string('thumbnail'); //gonna be saved in local file storage
             $table->string('url');
             $table->double('long', 9, 6);
@@ -28,7 +28,7 @@ class CreateAdvertisementsTable extends Migration
             
             $table->foreign('category')->references('id')->on('advert_categories');
             $table->foreign('type')->references('id')->on('advert_types');
-            $table->foreign('website')->references('id')->on('r_e_websites');
+            $table->foreign('r_e_websites_id')->references('id')->on('r_e_websites');
         });
     }
 
