@@ -16,7 +16,7 @@ class CreateAdvertisementPricesTable extends Migration
         Schema::create('advertisement_prices', function (Blueprint $table) {
             $table->id();
             $table->foreignId('advertisementID'); //svetaine, 
-            $table->double('price',10,2);
+            $table->double('price', 10,2);
             $table->timestamps();
             
             $table->foreign('advertisementID')->references('id')->on('advertisements');

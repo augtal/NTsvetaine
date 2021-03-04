@@ -16,11 +16,12 @@ class CreateAdvertisementDetailsTable extends Migration
         Schema::create('advertisement_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('advertisementID'); //svetaine, 
-            $table->float('area', 6,2);
+            $table->string('adress');
             $table->string('rooms',20);
-            $table->string('floor',15);
+            $table->string('floor',25);
             $table->string('buildingType',15);
             $table->string('heating',30);
+            $table->string('year', 12);
             $table->text('description');
 
             $table->timestamps();

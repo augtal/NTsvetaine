@@ -18,9 +18,10 @@ class CreateAdvertisementsTable extends Migration
             $table->string('title');
             $table->unsignedInteger('category'); //butas, 
             $table->unsignedInteger('type'); //parduoda, perka, nuomuoja 
-            $table->string('adress');
+            $table->float('area', 6,2);
             $table->foreignId('website'); //svetaine, 
             $table->string('thumbnail'); //gonna be saved in local file storage
+            $table->string('url');
             $table->double('long', 9, 6);
             $table->double('lat', 8, 6);
             $table->timestamps();

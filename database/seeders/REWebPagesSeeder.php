@@ -16,7 +16,7 @@ class REWebPagesSeeder extends Seeder
     public function run()
     {
         DB::table('r_e_web_pages')->insert([
-            'url'=>'https://domoplius.lt/skelbimai/butai?action_type=1',
+            'url'=>'https://domoplius.lt/skelbimai/butai?action_type=1&page_nr=1',
             'category'=>1,
             'type'=>1,
             'website'=>1,
