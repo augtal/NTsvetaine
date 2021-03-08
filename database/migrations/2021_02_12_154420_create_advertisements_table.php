@@ -18,7 +18,7 @@ class CreateAdvertisementsTable extends Migration
             $table->string('title');
             $table->unsignedInteger('category'); //butas, 
             $table->unsignedInteger('type'); //parduoda, perka, nuomuoja 
-            $table->float('area', 6,2);
+            $table->float('area', 10,2);
             $table->foreignId('r_e_websites_id'); //svetaine, 
             $table->string('thumbnail'); //gonna be saved in local file storage
             $table->string('url');
