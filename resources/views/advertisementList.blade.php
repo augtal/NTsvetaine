@@ -12,14 +12,12 @@
             <th>Svetainės logo</th>
         </tr>
         @foreach ($data as $item)
-        {{dd($data2)}}
-        {{dd($item)}}
         <tr>
-            <td><a href="{{$item['url']}}"><img src="{{$item['thumbnail']}}"></td>
-            <td>{{$item['price']}}</td>
-            <td>{{$item['category']}}</td>
-            <td>{{$item['type']}}</td>
-            <td>{{$item['url']}}</td>
+            <a href="{{$item['url']}}"><td><img src="{{$item['thumbnail']}}"></td></a>
+            <td>{{$item->lastestPrice['price']}} €</td>
+            <td>{{$item->getCategory['title']}}</td>
+            <td>{{$item->getType['title']}}</td>
+            <td><img src="{{$item->getWebsite['logo']}}"></td>
         </tr>
         @endforeach
     </table>

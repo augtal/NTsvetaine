@@ -12,9 +12,8 @@ class AdvertisementController extends Controller
     }
 
     public function showAdvertisementList(){
-        $data = Advertisement::with('lastestPrice')->simplePaginate(15);
-        $data2 = Advertisement::with('lastestPrice')->get()->toArray();
+        $data = Advertisement::with('lastestPrice', 'getCategory', 'getType', 'getWebsite')->paginate(10);
 
-        return view('advertisementList')->with('data', $data)->with('data2', $data2);
+        return view('advertisementList')->with('data', $data);
     }
 }
