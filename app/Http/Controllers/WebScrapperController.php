@@ -25,7 +25,6 @@ class WebScrapperController extends Controller
 
         echo "End of scraping";
     }
-
     private function scrape($website){
         $websiteName = REWebsites::where('id', $website['id'])->first()->toArray();
 
@@ -48,13 +47,16 @@ class WebScrapperController extends Controller
         if($adAmount % $adsPerPage > 0) $pages = (int)($adAmount / $adsPerPage + 1);
         else $pages = $adAmount / $adsPerPage;
 
-        $pages = 2;
+        #------------------------------------------------------------------------------------------------------------------------------------------------
+        #remove limiter
+        $pages = 1;
+        #------------------------------------------------------------------------------------------------------------------------------------------------
 
         for ($i = 1; $i <= $pages; $i++) {
             $url = substr($website['url'], 0, -1) . $i;
             $crawler = $client->request('GET', $url);
 
-            $adsInfo = $this->getPageAdInfo($crawler);
+            $adsInfo = $this->getPageAdsInfo($crawler);
 
             foreach($adsInfo as $info){
                 $l = "";
@@ -85,7 +87,7 @@ class WebScrapperController extends Controller
         }
     }
 
-    private function getPageAdInfo($crawler){
+    private function getPageAdsInfo($crawler){
         $adsInfo = Array();
         $crawler->filter('div.item')->each(function ($node) use (&$adsInfo){
             $info = Array();
@@ -204,8 +206,9 @@ class WebScrapperController extends Controller
         $results = array_merge($results, $tableInfo);
 
         #aprasymas
-        #$description = $crawler->filter('div.medium.info-block > div:nth-child(12)')->text();
-        $description = "Nera";
+        $amount = $crawler->filter('div.col-right > div.medium.info-block')->children()->count();
+        $descriptionMarker = "div.col-right > div.medium.info-block > div:nth-child(" . $amount - 3 . ")"; # - 3, nes komentarai yra 3 nuo galo <br><div><div>
+        $description = $crawler->filter($descriptionMarker)->html();#issaugomas su <br>
         $results['description'] = $description;
 
         #long/lat
