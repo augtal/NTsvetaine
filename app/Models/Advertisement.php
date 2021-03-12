@@ -7,8 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Advertisement extends Model
 {
-    public function lastestPrice(){
+    #returns single value
+    public function getLastestPrice(){
         return $this->hasOne(AdvertisementPrices::class)->orderBy('updated_at', 'DESC');
+    }
+
+    public function getPrices(){
+        return $this->hasMany(AdvertisementPrices::class)->orderBy('updated_at', 'DESC');
+    }
+
+    public function getDetails(){
+        return $this->hasOne(AdvertisementDetails::class, 'advertisement_id');
     }
 
     public function getCategory(){

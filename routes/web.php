@@ -24,3 +24,5 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/scrapper', 'WebScrapperController@index')->name('scrapper');
 
 Route::get('/adslist', 'AdvertisementController@showAdvertisementList')->name('advertisementList');
+
+Route::get('/ads/{id}', 'AdvertisementController@showAdvertisement')->name('advertisement');

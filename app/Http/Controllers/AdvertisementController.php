@@ -12,8 +12,15 @@ class AdvertisementController extends Controller
     }
 
     public function showAdvertisementList(){
-        $data = Advertisement::with('lastestPrice', 'getCategory', 'getType', 'getWebsite')->paginate(10);
+        $data = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->paginate(10);
 
         return view('advertisementList')->with('data', $data);
+    }
+
+    public function showAdvertisement($id){
+        $data = Advertisement::where('id', $id)->with('getDetails', 'getLastestPrice')->first();
+        $prices = Advertisement::where('id', $id)->with('getPrices')->first()->toArray();
+
+        return view('advertisement')->with('data', $data)->with('prices', $prices);
     }
 }
