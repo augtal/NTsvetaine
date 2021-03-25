@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+
 use App\Models\Advertisement;
+use Chartisan\PHP\Chartisan;
 
 class AdvertisementController extends Controller
 {
@@ -19,8 +21,7 @@ class AdvertisementController extends Controller
 
     public function showAdvertisement($id){
         $data = Advertisement::where('id', $id)->with('getDetails', 'getLastestPrice')->first();
-        $prices = Advertisement::where('id', $id)->with('getPrices')->first()->toArray();
 
-        return view('advertisement')->with('data', $data)->with('prices', $prices);
+        return view('advertisement')->with('data', $data);
     }
 }
