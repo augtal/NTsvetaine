@@ -18,7 +18,9 @@ class DatabaseSeeder extends Seeder
             REWebsitesSeeder::class,
             AdvertTypesSeeder::class,
             AdvertCategoriesSeeder::class,
-            REWebPagesSeeder::class
+            REWebPagesSeeder::class,
+            UserSeeder::class,
+            LikedAdvertisementsSeeder::class,
         ]);
     }
 }
