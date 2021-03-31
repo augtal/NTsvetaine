@@ -24,6 +24,7 @@ class CreateAdvertisementsTable extends Migration
             $table->string('url');
             $table->double('long', 9, 6);
             $table->double('lat', 8, 6);
+            $table->boolean('archived')->default(0);
             $table->timestamps();
             
             $table->foreign('category')->references('id')->on('advert_categories');
