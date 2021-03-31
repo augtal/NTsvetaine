@@ -51,7 +51,7 @@ class WebScrapperController extends Controller
         #remove limiter
         $pages = 1;
         #------------------------------------------------------------------------------------------------------------------------------------------------
-
+        
         for ($i = 1; $i <= $pages; $i++) {
             $url = substr($website['url'], 0, -1) . $i;
             $crawler = $client->request('GET', $url);
@@ -84,27 +84,30 @@ class WebScrapperController extends Controller
                 $a += 1;
                 echo $l . " finished " . $a . '<br>';
             }
+        
         }
     }
 
     private function getPageAdsInfo($crawler){
         $adsInfo = Array();
-        $crawler->filter('div.item')->each(function ($node) use (&$adsInfo){
+
+        $crawler->filter('main > div.cntnt-box-fixed > ul.auto-list')->children()->each(function ($node) use (&$adsInfo){
             $info = Array();
+            $info['title'] = $node->filter('.item-section.fr > h2 > a')->text('e');
+            if($info['title'] != 'e'){
+                $info['url'] = $node->filter('.item-section.fr > h2 > a')->link()->getUri();
 
-            $info['url'] = $node->filter('.item-section.fr > h2 > a')->link()->getUri();
+                $info['area'] = (double)substr($node->filter('.item-section.fr > div.param-list > div > span')->text(), 0, -3);
 
-            $info['title'] = $node->filter('.item-section.fr > h2 > a')->text();
-            $info['area'] = (double)substr($node->filter('.item-section.fr > div.param-list > div > span')->text(), 0, -3);
+                $price = $node->filter('.item-section.fr > div.price > p.fl > strong')->text();
+                $price = substr($price, 0, -4); # to remove € with a space before 
+                $price = str_replace(' ', '', $price);
+                $info['price'] = (int)$price;
+                
+                $info['imgUrl'] = $node->filter('div > div.thumb.fl > a > img')->attr('src');
 
-            $price = $node->filter('.item-section.fr > div.price > p.fl > strong')->text();
-            $price = substr($price, 0, -4); # to remove € with a space before 
-            $price = str_replace(' ', '', $price);
-            $info['price'] = (int)$price;
-            
-            $info['imgUrl'] = $node->filter('div > div.thumb.fl > a > img')->attr('src');
-
-            array_push($adsInfo, $info);
+                array_push($adsInfo, $info);
+            }
         });
         return $adsInfo;
     }
