@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ __('Dashboard') }}</div>
+                <div class="card-header">{{ __('Profile Dashboard') }}</div>
 
                 <div class="card-body">
                     @if (session('status'))
@@ -23,6 +23,14 @@
                     @else
                         <h4>User</h4>
                     @endif
+
+                    <form method="GET" action="/profileEditPage">
+                        <input type="submit" value="Edit proflie">
+                    </form>
+
+                    <form method="GET" action="/likedAds">
+                        <input type="submit" value="Liked Advertisements">
+                    </form>
                 </div>
             </div>
         </div>
