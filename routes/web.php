@@ -38,4 +38,6 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::post('profile/password-change', 'UserController@changePassword');
 
     Route::get('likedAds', 'UserController@showLikedAdsPage');
+
+    Route::post('/ads/{id}/fav', 'AdvertisementController@favoritePage');
 });

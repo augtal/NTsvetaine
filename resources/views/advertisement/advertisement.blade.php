@@ -2,7 +2,27 @@
 
 @section('content')
 <div class="container">
-    Advertisement {{$data['title']}} info
+    <h2>Advertisement {{$data['title']}} info</h2>
+    <br>
+    @guest
+    @else
+        <div>
+            @if ($favourite)
+                <h1>This ad is your favourite</h1>
+                <form action="/ads/{{$data['id']}}/fav" method="POST" >
+                    @csrf
+                    <input type="submit" value="Unfavourite">
+                </form>
+            @else
+                <h1>This ad is NOT your favourite</h1>
+                <form action="/ads/{{$data['id']}}/fav" method="POST" >
+                    @csrf
+                    <input type="submit" value="Favourite">
+                </form>
+            @endif
+        </div>
+    @endguest
+    <br>
     <div>
         <img src="{{$data['thumbnail']}}">
     </div>
