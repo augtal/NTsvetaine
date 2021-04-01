@@ -10,4 +10,8 @@ class LikedAdvertisements extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    public function getAdvertisements(){
+        return $this->hasOne(Advertisement::class, 'id', 'advertisement_id');
+    }
 }

@@ -11,6 +11,7 @@ use Illuminate\Validation\Rule;
 
 use App\Models\User;
 use App\Models\LikedAdvertisements;
+use App\Models\Advertisement;
 
 class UserController extends Controller
 {
@@ -23,8 +24,14 @@ class UserController extends Controller
     }
 
     public function showLikedAdsPage(){
-        $data = null;
-        return view('user.likedAds')->with('data', $data);
+        $likedAds = LikedAdvertisements::where('user_id', auth()->user()->id)->get()->toArray();
+
+        $data = Array();
+        foreach($likedAds as $adInfo){
+            $data[] = Advertisement::where('id', $adInfo['advertisement_id'])->with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->first();
+        }
+
+        return view('user.favAds')->with('data', $data);
     }
     
 

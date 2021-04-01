@@ -2,8 +2,8 @@
 
 @section('content')
 <div class="container">
-    Advertisement List
-    @if($data->count() > 0)
+    Favourite Advertisement List
+    @if(count($data) > 0)
         <div>
             <table style="width:100%">
                 <tr>
@@ -27,9 +27,6 @@
                 @endforeach
             </table>
             <br>
-            <div>
-            {{ $data->links() }}
-            </div>
         </div>
     @else
         <div>
