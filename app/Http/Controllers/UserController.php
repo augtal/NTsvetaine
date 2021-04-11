@@ -33,6 +33,27 @@ class UserController extends Controller
 
         return view('user.favAds')->with('data', $data);
     }
+
+    public function showUserList(){
+        $users = User::get();
+
+        return view('user.usersList')->with('users', $users);
+    }
+
+    public function changeUserRole($id){
+        $user = User::where('id', $id)->first();
+
+        if($user->role == 1){
+            $user->role = 73;
+            $user->save();
+        }
+        elseif($user->role == 73){
+            $user->role = 1;
+            $user->save();
+        }
+
+        return redirect()->back();
+    }
     
 
     public function changePassword(Request $request){

@@ -28,6 +28,10 @@ Route::get('/ads/{id}', 'AdvertisementController@showAdvertisement')->name('adve
 
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/scrapper', 'WebScrapperController@index')->name('scrapper');
+
+    Route::get('/userList', 'UserController@showUserList');
+
+    Route::get('/changeRole/{id}', 'UserController@changeUserRole');
 });
 
 Route::middleware(['auth', 'user'])->group(function () {
