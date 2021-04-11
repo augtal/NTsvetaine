@@ -17,7 +17,7 @@ class AdvertisementController extends Controller
     public function showAdvertisementList(){
         $data = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->paginate(10);
 
-        return view('advertisementList')->with('data', $data);
+        return view('listings.listingsList')->with('data', $data);
     }
 
     public function showAdvertisement($id){
@@ -27,7 +27,7 @@ class AdvertisementController extends Controller
         if(auth()->user())
             $favourite = LikedAdvertisements::where('user_id', auth()->user()->id)->where('advertisement_id', $id)->exists();
 
-        return view('advertisementsList')->with('data', $data)->with('favourite', $favourite);
+        return view('listings.listing')->with('data', $data)->with('favourite', $favourite);
     }
 
     public function favoritePage($id){
