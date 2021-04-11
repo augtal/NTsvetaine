@@ -79,6 +79,7 @@
             @yield('content')
         </main>
     </div>
-    @yield('js')
+    @yield('chart')
+    @yield('script')
 </body>
 </html>

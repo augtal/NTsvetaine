@@ -31,7 +31,7 @@ class UserController extends Controller
             $data[] = Advertisement::where('id', $adInfo['advertisement_id'])->with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->first();
         }
 
-        return view('user.favAds')->with('data', $data);
+        return view('user.favoriteListings')->with('data', $data);
     }
 
     public function showUserList(){

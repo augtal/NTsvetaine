@@ -21,9 +21,9 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::get('/adslist', 'AdvertisementController@showAdvertisementList')->name('advertisementList');
+Route::get('/listingsList', 'AdvertisementController@showAdvertisementList')->name('advertisementList');
 
-Route::get('/ads/{id}', 'AdvertisementController@showAdvertisement')->name('advertisement');
+Route::get('/listing/{id}', 'AdvertisementController@showAdvertisement')->name('advertisement');
 
 
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -41,7 +41,7 @@ Route::middleware(['auth', 'user'])->group(function () {
 
     Route::post('profile/password-change', 'UserController@changePassword');
 
-    Route::get('likedAds', 'UserController@showLikedAdsPage');
+    Route::get('likedListings', 'UserController@showLikedAdsPage');
 
-    Route::post('/ads/{id}/fav', 'AdvertisementController@favoritePage');
+    Route::post('/listing/{id}/fav', 'AdvertisementController@favoritePage');
 });

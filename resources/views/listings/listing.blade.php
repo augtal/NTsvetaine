@@ -2,20 +2,20 @@
 
 @section('content')
 <div class="container">
-    <h2>Advertisement {{$data['title']}} info</h2>
+    <h2>Skelbimo {{$data['title']}} informacija</h2>
     <br>
     @guest
     @else
         <div>
             @if ($favourite)
-                <h1>This ad is your favourite</h1>
-                <form action="/ads/{{$data['id']}}/fav" method="POST" >
+                <h1>Sis skelbimas YRA jusu megstamiausiu sarase</h1>
+                <form action="/listing/{{$data['id']}}/fav" method="POST" >
                     @csrf
                     <input type="submit" value="Unfavourite">
                 </form>
             @else
-                <h1>This ad is NOT your favourite</h1>
-                <form action="/ads/{{$data['id']}}/fav" method="POST" >
+                <h1>Sis skelbimas NERA jusu megstamiausiu sarase</h1>
+                <form action="/listing/{{$data['id']}}/fav" method="POST" >
                     @csrf
                     <input type="submit" value="Favourite">
                 </form>
@@ -72,7 +72,7 @@
 </div>
 @endsection
 
-@section('js')
+@section('chart')
     <!-- Chart's container -->
     <div id="chart" style="height: 300px;"></div>
     

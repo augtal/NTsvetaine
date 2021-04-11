@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    Favourite Advertisement List
+    Megstamiausiu skelbimu sarasas
     @if(count($data) > 0)
         <div>
             <table style="width:100%">
@@ -17,7 +17,7 @@
                 @foreach ($data as $item)
                 <tr>
                     <td><a href="{{$item['url']}}"><img src="{{$item['thumbnail']}}" style="width: 250px; height:175px"></td></a>
-                    <td><a href="/ads/{{$item['id']}}">{{$item['title']}}</td></a>
+                    <td><a href="/listing/{{$item['id']}}">{{$item['title']}}</td></a>
                     <td>{{$item->getLastestPrice['price']}} €</td>
                     <td>{{$item->getCategory['title']}}</td>
                     <td>{{$item->getType['title']}}</td>
@@ -30,7 +30,7 @@
         </div>
     @else
         <div>
-            <h2>No Advertisements yet!</h2>
+            <h2>Neturite megstamiausiu skelbimu!</h2>
         </div>
     @endif
 </div>
