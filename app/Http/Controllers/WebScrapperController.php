@@ -25,6 +25,40 @@ class WebScrapperController extends Controller
 
         echo "End of scraping";
     }
+
+    private function dwnImage($imgUrl, $advertID){
+        $outputFilename = $advertID;
+        $host = $imgUrl;
+
+        $file_name = basename($imgUrl);
+
+        $dir = "./public/images/AdvertisementsThumbnails";
+
+        $saveOutputLocation = $dir . $file_name;
+
+        $fp = fopen($saveOutputLocation, 'wb');
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $host);
+        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_AUTOREFERER, false);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+
+        $result = curl_exec($ch);
+
+        curl_close($ch);
+
+        
+        fwrite($fp, $result);
+        fclose($fp);
+    }
+
     private function scrape($website){
         $websiteName = REWebsites::where('id', $website['id'])->first()->toArray();
 
@@ -122,8 +156,8 @@ class WebScrapperController extends Controller
         $advertisement->r_e_websites_id = $website['r_e_websites_id']; 
         $advertisement->thumbnail = $adsInfo['imgUrl'];
         $advertisement->url = $adsInfo['url'];
-        $advertisement->long = $detailedInfo['long'];
         $advertisement->lat = $detailedInfo['lat'];
+        $advertisement->lng = $detailedInfo['lng'];
         $advertisement->save();
 
         return $advertisement->id;
@@ -162,25 +196,7 @@ class WebScrapperController extends Controller
         $newPrice->save();
     }
 
-    private function dwnImage($imgUrl, $advertID){
-        $output_filename = $advertID;
-        $host = $imgUrl;
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $host);
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_AUTOREFERER, false);
-        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        $result = curl_exec($ch);
-        curl_close($ch);
-        $fp = fopen($output_filename, 'wb');
-        fwrite($fp, $result);
-        fclose($fp);
-
-    }
+    
 
 
     private function scrapeDomoSingle($client, $link){
@@ -214,14 +230,14 @@ class WebScrapperController extends Controller
         $description = $crawler->filter($descriptionMarker)->html();#issaugomas su <br>
         $results['description'] = $description;
 
-        #long/lat
+        #lng/lat
         $mapLink = $crawler->filter('a#mini-map-block')->link()->getUri();
         $crawler = $client->request('GET', $mapLink);
 
-        $longAndLat = $crawler->filter('#container > section > div.small-wrapper > div.content-wrapper > main > script:nth-child(5)')->text();
-        if (preg_match_all("/\d{1,3}\.\d{1,6}/", $longAndLat, $values)){
-            $results['long'] = (double)$values[0][0];
-            $results['lat'] = (double)$values[0][1];
+        $lngAndLat = $crawler->filter('#container > section > div.small-wrapper > div.content-wrapper > main > script:nth-child(5)')->text();
+        if (preg_match_all("/\d{1,3}\.\d{1,6}/", $lngAndLat, $values)){
+            $results['lat'] = (double)$values[0][0];
+            $results['lng'] = (double)$values[0][1];
         }
         else{
         }
@@ -268,10 +284,10 @@ class WebScrapperController extends Controller
         else 
             $fixed['description'] = "Nera";
 
-        if(array_key_exists('long', $oldResults)) 
-            $fixed['long'] = $oldResults['long'];
+        if(array_key_exists('lng', $oldResults)) 
+            $fixed['lng'] = $oldResults['lng'];
         else 
-            $fixed['long'] = 0.0;
+            $fixed['lng'] = 0.0;
 
         if(array_key_exists('lat', $oldResults)) 
             $fixed['lat'] = $oldResults['lat'];
