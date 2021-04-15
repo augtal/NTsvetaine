@@ -17,17 +17,17 @@
                     <th>Svetainės logo</th>
                 </tr>
                 @foreach ($data as $item)
-                <!--
                 <tr>
+                    <!--
                     <td><a href="{{$item['url']}}"><img src="{{$item['thumbnail']}}" style="width: 250px; height:175px"></td></a>
-                    <td><a href="/listing/{{$item['id']}}">{{$item['title']}}</td></a>
+                    <td><a href="/listing/{{$item['id']}}">{{$item['title']}}</a></td>
                     <td>{{$item->getLastestPrice['price']}} €</td>
                     <td>{{$item->getCategory['title']}}</td>
                     <td>{{$item->getType['title']}}</td>
                     <td><img src="{{$item->getWebsite['logo']}}" style="width: 150px; height:100px"></td>
                     </a>
+                    -->
                 </tr>
-                -->
                 @endforeach
             </table>
             <br>
@@ -44,9 +44,12 @@
 @endsection
 
 @section('script')
+    <script async
+        src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&region=LTU&language=lt">
+    </script>
     <script src="https://unpkg.com/@googlemaps/markerclustererplus/dist/index.min.js"></script>
     <script>
-        const locations = @json($markerLocations);
+        const mapData = @json($mapData);
 
         function initMap() {
             const centerMap = { lat: 55.329905, lng: 23.905512 };
@@ -56,22 +59,48 @@
                 maxZoom: 17,
                 center: centerMap,
             }
-            
-            const map = new google.maps.Map(document.getElementById("map"),mapOptions);
 
-            const markers = locations.map((location, i) => {
-                return new google.maps.Marker({
-                position: location,
-                map: map,
-                });
-            });
+            const map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+            const markers = new Array();
+            for(i in mapData)
+            {
+                place = mapData[i];
+                if(place.lat && place.lng)
+                {
+                    var marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(place.lat, place.lng),
+                        map: map,
+                    });
+
+                    var infowindow = new google.maps.InfoWindow();
+                    google.maps.event.addListener(marker, 'click', (function (marker, place) {
+                        return function () {
+                            infowindow.setContent(generateContent(place))
+                            infowindow.open(map, marker);
+                        }
+                    })(marker, place));
+
+                    markers.push(marker);
+                }
+            }
 
             new MarkerClusterer(map, markers, {
                 imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
             });
         }
-    </script>
-    <script async
-        src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&callback=initMap">
+
+        google.maps.event.addDomListener(window, 'load', initMap);
+
+        function generateContent(place)
+        {
+            console.log(place);
+            var content = `
+                        <div>
+                            <a href="/listing/`+place.id+`">Skelbimo issami info</a>
+                        </div>'
+                            `;
+            return content;
+        }
     </script>
 @endsection

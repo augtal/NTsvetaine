@@ -30,7 +30,7 @@
         <table style="width:100%">
             <tr>
                 <th>Kaina:</th>
-                <td>{{$data->getLastestPrice['price']}}</td>
+                <td>{{$data->getLastestPrice['price']}} €</td>
             </tr>
             <tr>
                 <th>Adresas:</th>
@@ -58,7 +58,7 @@
             </tr>
             <tr>
                 <th>Skelbimo apibudinimas:</th>
-                <td>{{$data->getDetails['description']}}</td>
+                <td>{!! $data->getDetails['description'] !!}</td>
             </tr>
         </table>
     </div>
