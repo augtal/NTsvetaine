@@ -42,3 +42,36 @@
     @endif
 </div>
 @endsection
+
+@section('script')
+    <script src="https://unpkg.com/@googlemaps/markerclustererplus/dist/index.min.js"></script>
+    <script>
+        const locations = @json($markerLocations);
+
+        function initMap() {
+            const centerMap = { lat: 55.329905, lng: 23.905512 };
+            var mapOptions = {
+                zoom: 8,
+                minZoom: 7,
+                maxZoom: 17,
+                center: centerMap,
+            }
+            
+            const map = new google.maps.Map(document.getElementById("map"),mapOptions);
+
+            const markers = locations.map((location, i) => {
+                return new google.maps.Marker({
+                position: location,
+                map: map,
+                });
+            });
+
+            new MarkerClusterer(map, markers, {
+                imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
+            });
+        }
+    </script>
+    <script async
+        src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&callback=initMap">
+    </script>
+@endsection
