@@ -17,7 +17,17 @@ class AdvertisementController extends Controller
     public function showAdvertisementList(){
         $data = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->paginate(10);
 
-        return view('listings.listingsList')->with('data', $data);
+        $allAdvertisements = Advertisement::all();
+
+        $markerLocations = Array();
+        foreach($allAdvertisements as $ad){
+            $markerLocations[] = [
+                'lat' => $ad['lat'],
+                'lng' => $ad['lng']
+            ];
+        }
+
+        return view('listings.listingsList')->with('data', $data)->with('markerLocations', $markerLocations);
     }
 
     public function showAdvertisement($id){
