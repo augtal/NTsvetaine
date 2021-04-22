@@ -44,4 +44,8 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('likedListings', 'UserController@showLikedAdsPage');
 
     Route::post('/listing/{id}/fav', 'AdvertisementController@favoritePage');
+
+    Route::post('/saveShapes', 'AdvertisementController@showNotificationConfirmPage');
+
+    Route::post('/saveNotification', 'AdvertisementController@saveNotification');
 });

@@ -1,0 +1,246 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">{{ __('Pranesimo uzsaugojimas') }}</div>
+
+                <div class="card-body">
+
+                    <form method="POST" action="/saveNotification">
+                        @csrf
+                        <div class="form-group row">
+                            <label for="title" class="col-md-4 col-form-label text-md-right">{{ __('Pavadinimas') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="title" type="text" class="form-control @error('title') is-invalid @enderror" name="title" value="{{ old('title') }}" required autocomplete="title" autofocus>
+
+                                @error('title')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="description" class="col-md-4 col-form-label text-md-right">{{ __('Aprasymas') }}</label>
+
+                            <div class="col-md-6">
+                                <textarea id="description" class="form-control @error('description') is-invalid @enderror" name="description" value="{{ old('description') }}" required autocomplete="description" autofocus>
+                                </textarea>
+
+                                @error('description')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="frequency" class="col-md-4 col-form-label text-md-right">{{ __('Daznumas') }}</label>
+
+                            <div class="col-md-6">
+                                <select name="frequency" id="frequency">
+                                    <option value="1">Kiekviena diena</option>
+                                    <option value="2">Kai atsiranda naujas skelbimas zonoje</option>
+                                    <option value="3">Kai sumazeja skelbimo kaina</option>
+                                </select>
+
+                                @error('description')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-0">
+                            <div class="col-md-8 offset-md-4">
+                                <button type="submit" class="btn btn-primary">
+                                    {{ __('Uzsaugoti') }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div id='map' style="height: 675px; width: 100%;"></div>
+</div>
+@endsection
+
+@section('script')
+    <script async
+        src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=drawing&region=LTU&language=lt">
+    </script>
+    <script src="https://unpkg.com/@googlemaps/markerclustererplus/dist/index.min.js"></script>
+    <script>
+        const mapData = @json($mapData);
+
+        google.maps.event.addDomListener(window, 'load', initMap);
+
+        function initMap() {
+            var markers = new Array();
+            var cancelShape = false;
+            var shapes = new Array();
+
+            const centerMap = { lat: 55.329905, lng: 23.905512 };
+            let mapOptions = {
+                zoom: 8,
+                minZoom: 7,
+                maxZoom: 17,
+                center: centerMap,
+            }
+            const map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+            for(i in mapData)
+            {
+                place = mapData[i];
+                if(place.lat && place.lng)
+                {
+                    let marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(place.lat, place.lng),
+                        map: map,
+                    });
+
+                    let infowindow = new google.maps.InfoWindow();
+                    google.maps.event.addListener(marker, 'click', (function (marker, place) {
+                        return function () {
+                            infowindow.setContent(infoWindowContent(place))
+                            infowindow.open(map, marker);
+                        }
+                    })(marker, place));
+
+                    markers.push(marker);
+                }
+            }
+
+            new MarkerClusterer(map, markers, {
+                imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
+            });
+
+
+            let drawingManager = new google.maps.drawing.DrawingManager({
+                drawingControl: true,
+                drawingControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_CENTER,
+                    drawingModes: [
+                        google.maps.drawing.OverlayType.POLYGON,
+                        google.maps.drawing.OverlayType.CIRCLE,
+                        google.maps.drawing.OverlayType.RECTANGLE,
+                    ],
+                },
+                polygonOptions: {
+                    fillColor: "#7adcff",
+                    fillOpacity: 0.35,
+                    strokeWeight: 2,
+                    clickable: true,
+                    editable: true,
+                },
+                circleOptions: {
+                    fillColor: "#7adcff",
+                    fillOpacity: 0.35,
+                    strokeWeight: 2,
+                    clickable: true,
+                    editable: true,
+                },
+                rectangleOptions: {
+                    fillColor: "#7adcff",
+                    fillOpacity: 0.35,
+                    strokeWeight: 2,
+                    clickable: true,
+                    editable: true,
+                }
+            });
+            drawingManager.setMap(map);
+
+            $(document).keydown(function (event) {
+                if (event.keyCode === 27) { 
+                    cancelShape = true;
+                    drawingManager.setDrawingMode(null);
+                }
+            });
+
+            google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event) {
+                drawingManager.setDrawingMode(null);
+
+                let lastDrawnShape = event.overlay;
+                if (cancelShape) {
+                    cancelShape = false;
+                    lastDrawnShape.setMap(null);
+                    return;
+                }
+            });
+
+            drawSavedShapes(map);
+        }
+
+        function infoWindowContent(place)
+        {
+            let content = `
+                        <div>
+                            <img src="`+place.thumbnail+`" style="width: 100px; height:75px">
+                        </div>
+                        </br>
+                        <div>
+                            <a href="/listing/`+place.id+`">Skelbimo issami info</a>
+                        </div>
+                            `;
+            return content;
+        }
+
+        function drawSavedShapes(map){
+            const shapesData = @json($shapesData);
+
+            debugger;
+
+            for(i in shapesData)
+            {
+                shape = shapesData[i];
+                if(shape['type'] == 'polygon'){
+                    let drawShape = new google.maps.Polygon({
+                        paths: shape['cords'],
+                        fillColor: "#a0ff7a",
+                        fillOpacity: 0.35,
+                        strokeWeight: 2,
+                        clickable: true,
+                        editable: true,
+                    });
+
+                    drawShape.setMap(map);
+                }
+                else if(shape['type'] == 'circle'){
+                    let drawShape = new google.maps.Circle({
+                        center: shape['cords']['center'],
+                        radius: shape['cords']['radius'],
+                        fillColor: "#a0ff7a",
+                        fillOpacity: 0.35,
+                        strokeWeight: 2,
+                        clickable: true,
+                        editable: true,
+                    });
+
+                    drawShape.setMap(map);
+                }
+                else if(shape['type'] == 'rectangle'){
+                    let drawShape = new google.maps.Circle({
+                        bounds: shape['cords'],
+                        fillColor: "#a0ff7a",
+                        fillOpacity: 0.35,
+                        strokeWeight: 2,
+                        clickable: true,
+                        editable: true,
+                    });
+
+                    drawShape.setMap(map);
+                }
+            }
+        }
+    </script>
+@endsection
