@@ -17,7 +17,8 @@ class CreateNotificationsTable extends Migration
             $table->id();
             $table->foreignId('user_id');
             $table->string('title');
-            $table->text('description');
+            $table->text('description')->nullable();
+            $table->integer('frequency');
             $table->json('shapes');
             $table->timestamps();
 

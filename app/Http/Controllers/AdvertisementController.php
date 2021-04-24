@@ -54,15 +54,4 @@ class AdvertisementController extends Controller
 
         return redirect()->back();
     }
-
-    public function showNotificationConfirmPage(Request $request){
-        $shapesData = json_decode($request->All()['saveShapesValues'], true);
-        $mapData = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->get();
-
-        return view('notifications.notificationConfirm')->with('mapData', $mapData)->with('shapesData', $shapesData);
-    }
-
-    public function saveNotification(){
-        return redirect()->back();
-    }
 }

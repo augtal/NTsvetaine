@@ -3,28 +3,76 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+
 use App\Models\Notification;
+use App\Models\Advertisement;
 
 class NotificationController extends Controller
 {
-    public function saveNotification(){
-        
-    }
+    public function showNotificationsList(){
+        $data = Notification::where('user_id', auth()->user()->id)->get();
 
-    public function deleteNotification(){
-        
-    }
-
-    public function editNotification(){
-        
+        return view('notifications.notificationsList')->with('notifications', $data);
     }
 
     public function showNotification($id){
-        $data = Notification::where('user_id', auth()->user()->id)->get();
+        $data = Notification::where('id', $id)->first();
+        $mapData = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->get();
 
-        return;
+        $shapesData = json_decode($data->shapes, true);
+
+        return view('notifications.notification')->with('mapData', $mapData)->with('data', $data)->with('shapesData', $shapesData);
     }
 
+    public function showNotificationConfirmPage(Request $request){
+        $shapesData = json_decode($request->All()['saveShapesValues'], true);
+        $mapData = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->get();
+
+        return view('notifications.notificationConfirm')->with('mapData', $mapData)->with('shapesData', $shapesData);
+    }
+
+    public function saveNotification(Request $request){
+        $data = $request->All();
+
+        $notification = new Notification();
+        $notification->user_id = auth()->user()->id;
+        $notification->title = $data['title'];
+        $notification->description = $data['description'];
+        $notification->frequency = (int)$data['frequency'];
+        $notification->shapes = $data['confirmShapesValues'];
+        $notification->save();
+        
+        return redirect('notifications');
+    }
+
+    public function showEditNotificationPage($id){
+        $data = Notification::where('id', $id)->first();
+        $mapData = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->get();
+
+        $shapesData = json_decode($data->shapes, true);
+
+        return view('notifications.notificationEdit')->with('mapData', $mapData)->with('shapesData', $shapesData)->with('data', $data);
+    }
+
+    public function editNotification(Request $request, $id){
+        $data = $request->All();
+    
+        $notification = Notification::where('id', $id)->first();
+        $notification->user_id = auth()->user()->id;
+        $notification->title = $data['title'];
+        $notification->description = $data['description'];
+        $notification->frequency = (int)$data['frequency'];
+        $notification->shapes = $data['confirmShapesValues'];
+        $notification->save();
+        
+        return redirect('notifications');
+    }
+
+    public function deleteNotification($id){
+        $notification = Notification::where('id', $id)->first();
+        $notification->delete();
+        return redirect()->back();
+    }
 
     public function calculateIfInside(Request $request){
         $data = $request->all();

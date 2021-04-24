@@ -4,7 +4,7 @@
 <div class="container">
     <div id='map' style="height: 675px; width: 100%;"></div>
     <br>
-    <form id="saveShapes" action="/saveShapes" method="post">
+    <form id="saveShapes" action="/showSaveNotification" method="post">
         @csrf
 
         <input type="hidden" name="saveShapesValues" id="saveShapesValues">

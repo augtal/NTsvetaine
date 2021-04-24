@@ -5,17 +5,16 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ __('Pranesimo uzsaugojimas') }}</div>
+                <div class="card-header">{{ __('Pranesimo redagavimas') }}</div>
 
                 <div class="card-body">
-
-                    <form method="POST" action="/saveNotification">
+                    <form method="POST" action="/notification/{{$data->id}}/saveEdit">
                         @csrf
                         <div class="form-group row">
                             <label for="title" class="col-md-4 col-form-label text-md-right">{{ __('Pavadinimas') }}</label>
 
                             <div class="col-md-6">
-                                <input id="title" type="text" class="form-control @error('title') is-invalid @enderror" name="title" value="{{ old('title') }}" required autocomplete="title" autofocus>
+                                <input id="title" type="text" class="form-control @error('title') is-invalid @enderror" name="title" value="{{ $data->title }}" required autocomplete="title" required autofocus>
 
                                 @error('title')
                                     <span class="invalid-feedback" role="alert">
@@ -29,7 +28,7 @@
                             <label for="description" class="col-md-4 col-form-label text-md-right">{{ __('Aprasymas') }}</label>
 
                             <div class="col-md-6">
-                                <textarea id="description" class="form-control @error('description') is-invalid @enderror" name="description" value="{{ old('description') }}" autocomplete="description" autofocus>
+                                <textarea id="description" class="form-control @error('description') is-invalid @enderror" name="description" value="{{ $data->description }}" autocomplete="description" autofocus>
                                 </textarea>
 
                                 @error('description')
@@ -44,10 +43,21 @@
                             <label for="frequency" class="col-md-4 col-form-label text-md-right">{{ __('Daznumas') }}</label>
 
                             <div class="col-md-6">
-                                <select name="frequency" id="frequency">
-                                    <option value="1">Kiekviena diena</option>
-                                    <option value="2">Kai atsiranda naujas skelbimas zonoje</option>
-                                    <option value="3">Kada pasikeicia skelbimu zonoje kaina</option>
+                                <select name="frequency" id="frequency" >
+                                    @if ($data->frequency == 1)
+                                        <option value="1" selected="selected">Kiekviena diena</option>
+                                        <option value="2">Kai atsiranda naujas skelbimas zonoje</option>
+                                        <option value="3">Kada pasikeicia skelbimu zonoje kaina</option>
+                                    @elseif ($data->frequency == 2)
+                                        <option value="1">Kiekviena diena</option>
+                                        <option value="2" selected="selected">Kai atsiranda naujas skelbimas zonoje</option>
+                                        <option value="3">Kada pasikeicia skelbimu zonoje kaina</option>
+                                    @elseif ($data->frequency == 3)
+                                        <option value="1">Kiekviena diena</option>
+                                        <option value="2">Kai atsiranda naujas skelbimas zonoje</option>
+                                        <option value="3" selected="selected">Kada pasikeicia skelbimu zonoje kaina</option>
+                                    @endif
+                                    
                                 </select>
                             </div>
                         </div>

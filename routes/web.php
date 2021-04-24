@@ -13,13 +13,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/', 'AdvertisementController@showAdvertisementList');
+
+Route::get('/home', 'AdvertisementController@showAdvertisementList');
 
 Route::get('/listingsList', 'AdvertisementController@showAdvertisementList')->name('advertisementList');
 
@@ -45,7 +43,17 @@ Route::middleware(['auth', 'user'])->group(function () {
 
     Route::post('/listing/{id}/fav', 'AdvertisementController@favoritePage');
 
-    Route::post('/saveShapes', 'AdvertisementController@showNotificationConfirmPage');
+    Route::post('/showSaveNotification', 'NotificationController@showNotificationConfirmPage');
 
-    Route::post('/saveNotification', 'AdvertisementController@saveNotification');
+    Route::post('/saveNotification', 'NotificationController@saveNotification');
+
+    Route::get('/notifications', 'NotificationController@showNotificationsList');
+
+    Route::get('/notification/{id}', 'NotificationController@showNotification');
+
+    Route::get('/notification/{id}/edit', 'NotificationController@showEditNotificationPage');
+
+    Route::post('/notification/{id}/saveEdit', 'NotificationController@editNotification');
+
+    Route::get('/notification/{id}/delete', 'NotificationController@deleteNotification');
 });
