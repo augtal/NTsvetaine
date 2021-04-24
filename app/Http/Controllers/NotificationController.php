@@ -3,10 +3,27 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Notification;
 
 class NotificationController extends Controller
 {
-    //
+    public function saveNotification(){
+        
+    }
+
+    public function deleteNotification(){
+        
+    }
+
+    public function editNotification(){
+        
+    }
+
+    public function showNotification($id){
+        $data = Notification::where('user_id', auth()->user()->id)->get();
+
+        return;
+    }
 
 
     public function calculateIfInside(Request $request){

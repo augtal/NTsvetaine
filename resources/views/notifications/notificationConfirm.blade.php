@@ -47,7 +47,7 @@
                                 <select name="frequency" id="frequency">
                                     <option value="1">Kiekviena diena</option>
                                     <option value="2">Kai atsiranda naujas skelbimas zonoje</option>
-                                    <option value="3">Kai sumazeja skelbimo kaina</option>
+                                    <option value="3">Kada pasikeicia skelbimu zonoje kaina</option>
                                 </select>
 
                                 @error('description')
@@ -197,8 +197,6 @@
 
         function drawSavedShapes(map){
             const shapesData = @json($shapesData);
-
-            debugger;
 
             for(i in shapesData)
             {
