@@ -17,7 +17,7 @@ class NotificationController extends Controller
 
     public function showNotification($id){
         $data = Notification::where('id', $id)->first();
-        $mapData = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->get();
+        $mapData = Advertisement::with('getLocation')->get();
 
         $shapesData = json_decode($data->shapes, true);
 
@@ -26,7 +26,7 @@ class NotificationController extends Controller
 
     public function showNotificationConfirmPage(Request $request){
         $shapesData = json_decode($request->All()['saveShapesValues'], true);
-        $mapData = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->get();
+        $mapData = Advertisement::with('getLocation')->get();
 
         return view('notifications.notificationConfirm')->with('mapData', $mapData)->with('shapesData', $shapesData);
     }
@@ -47,7 +47,7 @@ class NotificationController extends Controller
 
     public function showEditNotificationPage($id){
         $data = Notification::where('id', $id)->first();
-        $mapData = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->get();
+        $mapData = Advertisement::with('getLocation')->get();
 
         $shapesData = json_decode($data->shapes, true);
 

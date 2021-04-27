@@ -16,6 +16,10 @@ class Advertisement extends Model
         return $this->hasMany(AdvertisementPrices::class)->orderBy('updated_at', 'DESC');
     }
 
+    public function getLocation(){
+        return $this->hasOne(AdvertisementLocation::class, 'advertisement_id');
+    }
+
     public function getDetails(){
         return $this->hasOne(AdvertisementDetails::class, 'advertisement_id');
     }

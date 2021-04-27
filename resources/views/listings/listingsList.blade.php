@@ -22,6 +22,8 @@
     @if($data->count() > 0)
         <div>
             {{ $data->links() }}
+            <h4> Rasta skelbimu: {{$data->total()}} </h4>
+
             <table style="width:100%">
                 <tr>
                     <th>Nuotrauka</th>
@@ -74,7 +76,7 @@
 
             const centerMap = { lat: 55.329905, lng: 23.905512 };
             let mapOptions = {
-                zoom: 8,
+                zoom: 7,
                 minZoom: 7,
                 maxZoom: 17,
                 center: centerMap,
@@ -84,10 +86,10 @@
             for(i in mapData)
             {
                 place = mapData[i];
-                if(place.lat && place.lng)
+                if(place.get_location.lat && place.get_location.lng)
                 {
                     let marker = new google.maps.Marker({
-                        position: new google.maps.LatLng(place.lat, place.lng),
+                        position: new google.maps.LatLng(place.get_location.lat, place.get_location.lng),
                         map: map,
                     });
 

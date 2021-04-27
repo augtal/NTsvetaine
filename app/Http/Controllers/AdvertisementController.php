@@ -10,17 +10,17 @@ use Chartisan\PHP\Chartisan;
 
 class AdvertisementController extends Controller
 {
-    public function index(){
-
-    }
-
     public function showAdvertisementList(Request $request){
         $search = $request->input('search');
-        $mapData = Advertisement::get();
+        $mapData = Advertisement::with('getLocation')->get();
 
         if($search != null){
+            $search = explode(',', $search)[0];
+
             $data = Advertisement::query()
-                    ->where('title', 'LIKE', "%{$search}%")->paginate(10);
+                    ->where('title', 'LIKE', "%{$search}%")
+                    ->orWhere('adress', 'LIKE', "%{$search}%")
+                    ->paginate(10);
             $data->appends(['search' => $search]);
         }
         else{

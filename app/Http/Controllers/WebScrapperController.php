@@ -7,6 +7,7 @@ use Goutte\Client;
 
 #lenteles i kurias bus saugojama info
 use App\Models\Advertisement;
+use App\Models\AdvertisementLocation;
 use App\Models\AdvertisementDetails;
 use App\Models\AdvertisementPrices;
 
@@ -83,7 +84,7 @@ class WebScrapperController extends Controller
 
         #------------------------------------------------------------------------------------------------------------------------------------------------
         #remove limiter
-        $pages = 1;
+        $pages = 2;
         #------------------------------------------------------------------------------------------------------------------------------------------------
         
         for ($i = 1; $i <= $pages; $i++) {
@@ -109,6 +110,7 @@ class WebScrapperController extends Controller
                         $result = $this->scrapeDomoSingle($client, $info['url']);
                         $detailedInfo = $this->fixResultsDomo($result);
                         $id = $this->insertToAdvertisement($website, $info, $detailedInfo);
+                        $this->insertToAdvertisementLocation($detailedInfo, $id);
                         $this->insertToAdvertisementDetails($detailedInfo, $id);
                         $this->insertToAdvertisementPrices($info, $id);
                         $l = "C |";
@@ -125,6 +127,10 @@ class WebScrapperController extends Controller
     private function getPageAdsInfo($crawler){
         $adsInfo = Array();
 
+        #container > section > div.small-wrapper > div.content-wrapper > main > div.cntnt-box-fixed > ul
+        #ann_7272619 > div > div.thumb.fl
+        #ann_7272619 > div > div.thumb.fl > a > img
+
         $crawler->filter('main > div.cntnt-box-fixed > ul.auto-list')->children()->each(function ($node) use (&$adsInfo){
             $info = Array();
             $info['title'] = $node->filter('.item-section.fr > h2 > a')->text('e');
@@ -137,8 +143,12 @@ class WebScrapperController extends Controller
                 $price = substr($price, 0, -4); # to remove € with a space before 
                 $price = str_replace(' ', '', $price);
                 $info['price'] = (int)$price;
-                
-                $info['imgUrl'] = $node->filter('div > div.thumb.fl > a > img')->attr('src');
+                if($node->filter('div > div.thumb.fl > a > img')->count()){
+                    $info['imgUrl'] = $node->filter('div > div.thumb.fl > a > img')->attr('src');
+                }
+                else{
+                    $info['imgUrl'] = "";
+                }
 
                 array_push($adsInfo, $info);
             }
@@ -153,21 +163,28 @@ class WebScrapperController extends Controller
         $advertisement->category = $website['category'];
         $advertisement->type = $website['type'];
         $advertisement->area = $adsInfo['area'];
+        $advertisement->adress = $detailedInfo['adress'];
         $advertisement->r_e_websites_id = $website['r_e_websites_id']; 
         $advertisement->thumbnail = $adsInfo['imgUrl'];
         $advertisement->url = $adsInfo['url'];
-        $advertisement->lat = $detailedInfo['lat'];
-        $advertisement->lng = $detailedInfo['lng'];
         $advertisement->save();
 
         return $advertisement->id;
+    }
+
+    private function insertToAdvertisementLocation($detailedInfo, $id){
+        $location = new AdvertisementLocation();
+
+        $location->advertisement_id = $id;
+        $location->lat = $detailedInfo['lat'];
+        $location->lng = $detailedInfo['lng'];
+        $location->save();
     }
 
     private function insertToAdvertisementDetails($detailedInfo, $id){
         $details = new AdvertisementDetails();
 
         $details->advertisement_id = $id;
-        $details->adress = $detailedInfo['adress'];
         $details->rooms = $detailedInfo['rooms'];
         $details->floor = $detailedInfo['floor'];
         $details->buildingType = $detailedInfo['buildingType'];

@@ -34,7 +34,7 @@
             </tr>
             <tr>
                 <th>Adresas:</th>
-                <td>{{$data->getDetails['adress']}}</td>
+                <td>{{$data->adress}}</td>
             </tr>
             <tr>
                 <th>Kambariai:</th>

@@ -111,10 +111,10 @@
             for(i in mapData)
             {
                 place = mapData[i];
-                if(place.lat && place.lng)
+                if(place.get_location.lat && place.get_location.lng)
                 {
                     let marker = new google.maps.Marker({
-                        position: new google.maps.LatLng(place.lat, place.lng),
+                        position: new google.maps.LatLng(place.get_location.lat, place.get_location.lng),
                         map: map,
                     });
 
