@@ -12,8 +12,16 @@
     </form>
 
     <div>Skelbimu sarasas</div>
+    <form action="/" method="GET">
+        <input type="text" name="search" id="search" value="{{ $searchTerm }}">
+        <input type="hidden" name="search-lat" id="search-lat" value="{{ old('latitude') ?? '0' }}" />
+        <input type="hidden" name="search-lng" id="search-lng" value="{{ old('longitude') ?? '0' }}" />
+
+        <button type="submit">Paieska</button>
+    </form>
     @if($data->count() > 0)
         <div>
+            {{ $data->links() }}
             <table style="width:100%">
                 <tr>
                     <th>Nuotrauka</th>
@@ -49,7 +57,7 @@
 
 @section('script')
     <script async
-        src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=drawing&region=LTU&language=lt">
+        src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=drawing,places&region=LTU&language=lt">
     </script>
     <script src="https://unpkg.com/@googlemaps/markerclustererplus/dist/index.min.js"></script>
     <script>
@@ -177,6 +185,8 @@
                 document.getElementById("saveShapesValues").value = JSON.stringify(shapes);
                 document.getElementById("saveShapesButton").style.visibility = "visible";
             });
+
+            initAutocomplete(map);
         }
 
         function infoWindowContent(place)
@@ -191,6 +201,61 @@
                         </div>
                             `;
             return content;
+        }
+
+        function initAutocomplete(map) {
+            const input = document.getElementById("search");
+            const searchBox = new google.maps.places.SearchBox(input);
+            
+            map.addListener("bounds_changed", () => {
+                searchBox.setBounds(map.getBounds());
+            });
+            let markers = [];
+            
+            searchBox.addListener("places_changed", () => {
+                const places = searchBox.getPlaces();
+
+                if (places.length == 0) {
+                return;
+                }
+                
+                markers.forEach((marker) => {
+                marker.setMap(null);
+                });
+                markers = [];
+                
+                const bounds = new google.maps.LatLngBounds();
+                places.forEach((place) => {
+                if (!place.geometry || !place.geometry.location) {
+                    console.log("Returned place contains no geometry");
+                    return;
+                }
+                const icon = {
+                    url: place.icon,
+                    size: new google.maps.Size(71, 71),
+                    origin: new google.maps.Point(0, 0),
+                    anchor: new google.maps.Point(17, 34),
+                    scaledSize: new google.maps.Size(25, 25),
+                };
+                
+                markers.push(
+                    new google.maps.Marker({
+                    map,
+                    icon,
+                    title: place.name,
+                    position: place.geometry.location,
+                    })
+                );
+
+                if (place.geometry.viewport) {
+                    
+                    bounds.union(place.geometry.viewport);
+                } else {
+                    bounds.extend(place.geometry.location);
+                }
+                });
+                map.fitBounds(bounds);
+            });
         }
     </script>
 @endsection

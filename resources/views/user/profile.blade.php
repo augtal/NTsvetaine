@@ -31,6 +31,10 @@
                     <form method="GET" action="/likedAds">
                         <input type="submit" value="Liked Advertisements">
                     </form>
+
+                    <form method="GET" action="/notifications">
+                        <input type="submit" value="Pranesimu nustatymai">
+                    </form>
                 </div>
             </div>
         </div>

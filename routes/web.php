@@ -23,7 +23,6 @@ Route::get('/listingsList', 'AdvertisementController@showAdvertisementList')->na
 
 Route::get('/listing/{id}', 'AdvertisementController@showAdvertisement')->name('advertisement');
 
-
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/scrapper', 'WebScrapperController@index')->name('scrapper');
 

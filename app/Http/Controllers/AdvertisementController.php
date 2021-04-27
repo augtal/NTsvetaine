@@ -14,12 +14,20 @@ class AdvertisementController extends Controller
 
     }
 
-    public function showAdvertisementList(){
-        $data = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->paginate(10);
+    public function showAdvertisementList(Request $request){
+        $search = $request->input('search');
+        $mapData = Advertisement::get();
 
-        $mapData = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->get();
+        if($search != null){
+            $data = Advertisement::query()
+                    ->where('title', 'LIKE', "%{$search}%")->paginate(10);
+            $data->appends(['search' => $search]);
+        }
+        else{
+            $data = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->paginate(10);
+        }
 
-        return view('listings.listingsList')->with('data', $data)->with('mapData', $mapData);
+        return view('listings.listingsList')->with('searchTerm', $search)->with('data', $data)->with('mapData', $mapData);
     }
 
     public function showAdvertisement($id){
