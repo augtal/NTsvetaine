@@ -74,6 +74,10 @@ class NotificationController extends Controller
         return redirect()->back();
     }
 
+    public function createNewMessageForUser($user_id, $notification_id){
+        return;
+    }
+
     public function calculateIfInside(Request $request){
         $data = $request->all();
 

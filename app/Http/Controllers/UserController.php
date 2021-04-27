@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-
 use App\Models\User;
 use App\Models\LikedAdvertisements;
 use App\Models\Advertisement;

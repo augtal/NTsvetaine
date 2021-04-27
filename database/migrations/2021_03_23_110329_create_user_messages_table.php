@@ -17,6 +17,7 @@ class CreateUserMessagesTable extends Migration
             $table->id();
             $table->foreignId('user_id');
             $table->foreignId('notification_id');
+            $table->string('message');
             $table->boolean('new_msg')->default(0);
             $table->boolean('read_msg')->default(0);
             $table->timestamps();
