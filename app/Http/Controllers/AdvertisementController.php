@@ -8,9 +8,15 @@ use App\Models\Advertisement;
 use App\Models\LikedAdvertisements;
 use Chartisan\PHP\Chartisan;
 
+use App\Models\AdvertCategories;
+use App\Models\AdvertTypes;
+
 class AdvertisementController extends Controller
 {
     public function showAdvertisementList(Request $request){
+        $filterInfo['types'] = AdvertTypes::get();
+        $filterInfo['categories'] = AdvertCategories::get();
+
         $search = $request->input('search');
         $mapData = Advertisement::with('getLocation')->get();
 
@@ -27,7 +33,7 @@ class AdvertisementController extends Controller
             $data = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->paginate(10);
         }
 
-        return view('listings.listingsList')->with('searchTerm', $search)->with('data', $data)->with('mapData', $mapData);
+        return view('listings.listingsList')->with('filterInfo', $filterInfo)->with('searchTerm', $search)->with('data', $data)->with('mapData', $mapData);
     }
 
     public function showAdvertisement($id){

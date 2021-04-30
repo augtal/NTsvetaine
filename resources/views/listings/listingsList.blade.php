@@ -2,28 +2,67 @@
 
 @section('content')
 <div class="container">
-    <div id='map' style="height: 675px; width: 100%;"></div>
+    <div>
+        <form action="/" method="GET">
+            <input type="text" name="search" id="search" value="{{ $searchTerm }}">
+            <button type="submit">Paieska</button>
+        </form>
+    </div>
     <br>
-    <form id="saveShapes" action="/showSaveNotification" method="post">
-        @csrf
 
-        <input type="hidden" name="saveShapesValues" id="saveShapesValues">
-        <button id="saveShapesButton" type="submit" class="btn btn-danger">Save</button>
-    </form>
+    <div id="map" style="height: 675px; width: 100%;"></div>
+    <br>
+    <div id="map-save" style="display: none">
+        <form id="saveShapes" action="/showSaveNotification" method="post">
+            @csrf
+            <input type="hidden" name="saveShapesValues" id="saveShapesValues">
+            <button id="saveShapesButton" type="submit" class="btn btn-warning">Save</button>
+        </form>
+        <br>
+    </div>
 
-    <div>Skelbimu sarasas</div>
-    <form action="/" method="GET">
-        <input type="text" name="search" id="search" value="{{ $searchTerm }}">
-        <input type="hidden" name="search-lat" id="search-lat" value="{{ old('latitude') ?? '0' }}" />
-        <input type="hidden" name="search-lng" id="search-lng" value="{{ old('longitude') ?? '0' }}" />
+    <div>
+        <button id="showFiltersButton" onclick="showFilters()" class="btn btn-success">Filtrai</button>
 
-        <button type="submit">Paieska</button>
-    </form>
+        <div id="filter-settings" style="display: none">
+            <form action="/" method="GET">
+                <label for="min_price">Skelbimo maziausia kaina</label>
+                <input type="number" id="min_price" name="filter[min_price]">
+                <br>
+
+                <label for="max_price">Skelbimo didziausia kaina</label>
+                <input type="number" id="max_price" name="filter[max_price]">
+                <br>
+
+                <label for="type">Skelbimo tipas</label>
+                <select id="type" name="filter[type]">
+                    <option value="" selected>-- Pasirinkite tipa --</option>
+
+                    @foreach ($filterInfo['types'] as $type)
+                    <option value="{{$type['id']}}">{{$type['title']}}</option>
+                    @endforeach
+                </select>
+                <br>
+
+                <label for="category">Skelbimo kategorija</label>
+                <select id="category" name="filter[category]">
+                    <option value="" selected>-- Pasirinkite kategorija --</option>
+
+                    @foreach ($filterInfo['categories'] as $category)
+                    <option value="{{$category['id']}}">{{$category['title']}}</option>
+                    @endforeach
+                </select>
+                <br>
+
+                <button type="submit">Filtruoti</button>
+            </form>
+        </div>
+    </div>
+    <br>    
     @if($data->count() > 0)
         <div>
             {{ $data->links() }}
             <h4> Rasta skelbimu: {{$data->total()}} </h4>
-
             <table style="width:100%">
                 <tr>
                     <th>Nuotrauka</th>
@@ -63,13 +102,22 @@
     </script>
     <script src="https://unpkg.com/@googlemaps/markerclustererplus/dist/index.min.js"></script>
     <script>
+        function showFilters() {
+            var x = document.getElementById("filter-settings");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } 
+            else {
+                x.style.display = "none";
+            }
+        }
+    </script>
+    <script>
         const mapData = @json($mapData);
 
         google.maps.event.addDomListener(window, 'load', initMap);
 
         function initMap() {
-            document.getElementById("saveShapesButton").style.visibility = "hidden";
-
             var markers = new Array();
             var cancelShape = false;
             var shapes = new Array();
@@ -185,7 +233,7 @@
                 }
 
                 document.getElementById("saveShapesValues").value = JSON.stringify(shapes);
-                document.getElementById("saveShapesButton").style.visibility = "visible";
+                document.getElementById("map-save").style.display = "block";
             });
 
             initAutocomplete(map);
