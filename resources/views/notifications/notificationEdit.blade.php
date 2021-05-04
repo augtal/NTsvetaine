@@ -45,17 +45,11 @@
                             <div class="col-md-6">
                                 <select name="frequency" id="frequency" >
                                     @if ($data->frequency == 1)
-                                        <option value="1" selected="selected">Kiekviena diena</option>
-                                        <option value="2">Kai atsiranda naujas skelbimas zonoje</option>
-                                        <option value="3">Kada pasikeicia skelbimu zonoje kaina</option>
+                                        <option value="1" selected="selected">Kai atsiranda naujas skelbimas zonoje</option>
+                                        <option value="2">Kada pasikeicia skelbimu zonoje kaina</option>
                                     @elseif ($data->frequency == 2)
-                                        <option value="1">Kiekviena diena</option>
-                                        <option value="2" selected="selected">Kai atsiranda naujas skelbimas zonoje</option>
-                                        <option value="3">Kada pasikeicia skelbimu zonoje kaina</option>
-                                    @elseif ($data->frequency == 3)
-                                        <option value="1">Kiekviena diena</option>
-                                        <option value="2">Kai atsiranda naujas skelbimas zonoje</option>
-                                        <option value="3" selected="selected">Kada pasikeicia skelbimu zonoje kaina</option>
+                                        <option value="1">Kai atsiranda naujas skelbimas zonoje</option>
+                                        <option value="2" selected="selected">Kada pasikeicia skelbimu zonoje kaina</option>
                                     @endif
                                     
                                 </select>

@@ -8,15 +8,16 @@ use App\Models\Advertisement;
 use App\Models\LikedAdvertisements;
 
 use App\Models\AdvertCategories;
+use App\Models\AdvertisementPrices;
 use App\Models\AdvertTypes;
 
 use App\Models\UserMessages;
+use Carbon\Carbon;
 
 class AdvertisementController extends Controller
 {
-    public function showAdvertisementList(Request $request){
-        $messages = $this->getUserMessages();
 
+    public function showAdvertisementList(Request $request){
         $filterInfo['types'] = AdvertTypes::get();
         $filterInfo['categories'] = AdvertCategories::get();
 
@@ -36,16 +37,44 @@ class AdvertisementController extends Controller
             $data = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->paginate(10);
         }
 
-        return view('listings.listingsList')->with('messages', $messages)->with('filterInfo', $filterInfo)->with('searchTerm', $search)->with('data', $data)->with('mapData', $mapData);
+        return view('listings.listingsList')->with('filterInfo', $filterInfo)->with('searchTerm', $search)->with('data', $data)->with('mapData', $mapData);
     }
 
-    private function getUserMessages(){
-        if(auth()->user() != null){
-            $messages = UserMessages::where('user_id', auth()->user()->id)->get();
-            return $messages;
+    public function showAdvertisementList2(Request $request){
+
+        $filterInfo['types'] = AdvertTypes::get();
+        $filterInfo['categories'] = AdvertCategories::get();
+
+        $search = $request->input('search');
+
+        if ($request->session()->has('mapData')) {
+            $mapData = $request->session()->get('mapData');
+        }
+        else{
+            $mapData = Advertisement::with('getLocation')->get();
+            $request->session()->put('mapData', $mapData);
         }
 
-        return null;
+        if($search != null){
+            $search = explode(',', $search)[0];
+
+            $data = Advertisement::query()
+                    ->where('title', 'LIKE', "%{$search}%")
+                    ->orWhere('adress', 'LIKE', "%{$search}%")
+                    ->paginate(10);
+            $data->appends(['search' => $search]);
+            $request->session()->put('data', $data);
+        }
+
+        if ($request->session()->has('data')) {
+            $data = request()->session()->get('data');
+        }
+        else{
+            $data = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->paginate(10);
+            $request->session()->put('data', $data);
+        }
+
+        return view('listings.listingsList')->with('filterInfo', $filterInfo)->with('searchTerm', $search)->with('data', $data)->with('mapData', $mapData);
     }
 
     public function showAdvertisement($id){

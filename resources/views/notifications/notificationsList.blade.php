@@ -18,11 +18,9 @@
                     <td>{{ $item['description'] }}</td>
                     <td>
                         @if ($item['frequency'] == 1)
-                            <h5>Kiekviena diena</h5>
+                            <p>Kai atsiranda naujas skelbimas zonoje</p>
                         @elseif ($item['frequency'] == 2)
-                            <h5>Kai atsiranda naujas skelbimas zonoje</h5>
-                        @elseif ($item['frequency'] == 3)
-                            <h5>Kada pasikeicia skelbimu zonoje kaina</h5>
+                            <p>Kada pasikeicia skelbimu zonoje kaina</p>
                         @endif
                     </td>
                     <td><a href='/notification/{{$item['id']}}/edit' class="btn btn-warning">Redaguoti</a>

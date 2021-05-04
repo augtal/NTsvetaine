@@ -65,7 +65,7 @@
         <div>
             {{ $data->links() }}
             <h4> Rasta skelbimu: {{$data->total()}} </h4>
-            <table style="width:100%">
+            <table class="table table-hover" style="width:100%">
                 <tr>
                     <th>Nuotrauka</th>
                     <th>Pavadinimas</th>
@@ -268,7 +268,7 @@
                 const places = searchBox.getPlaces();
 
                 if (places.length == 0) {
-                return;
+                    return;
                 }
                 
                 markers.forEach((marker) => {

@@ -213,9 +213,6 @@ class WebScrapperController extends Controller
         $newPrice->save();
     }
 
-    
-
-
     private function scrapeDomoSingle($client, $link){
         $results = Array();
         $crawler = $client->request('GET', $link);

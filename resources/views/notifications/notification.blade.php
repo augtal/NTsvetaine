@@ -2,43 +2,65 @@
 
 @section('content')
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Pranesimas') }}</div>
-
-                <div class="card-body">
-                    <div class="form-group row">
-                        <div class="col-md-4 col-form-label text-md-right"> Pavadinimas </div>
-
-                        <div class="col-md-6"> {{$data->title}} </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col-md-4 col-form-label text-md-right"> Aprašymas </div>
-
-                        <div class="col-md-6"> {{$data->description}} </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col-md-4 col-form-label text-md-right"> Dažnumas </div>
-
-                        <div class="col-md-6">
-                            @if ($data->frequency == 1)
-                                Kiekviena diena
-                            @elseif ($data->frequency == 2)
-                                Kai atsiranda naujas skelbimas zonoje
-                            @elseif ($data->frequency == 3)
-                                Kada pasikeicia skelbimu zonoje kaina
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div>
+        <table style="width:100%">
+            <tr>
+                <th>Pavadinimas</th>
+                <th>Aprašymas</th>
+                <th>Dažnumas</th>
+            </tr>
+            <tr>
+                <td>{{$notificationData->title}}</td>
+                <td>{{$notificationData->description}}</td>
+                <td>@if ($notificationData->frequency == 1)
+                    Kai atsiranda naujas skelbimas zonoje
+                @elseif ($notificationData->frequency == 2)
+                    Kada pasikeicia skelbimu zonoje kaina
+                @endif
+                </td>
+            </tr>
+        </table>
+        <br>
     </div>
     <br>
     <div id='map' style="height: 675px; width: 100%;"></div>
+    <br>
+    @if($advertisements->count() > 0)
+        <div class="table-responsive">
+            <h4> Rasta skelbimų pagal parametrus: {{$advertisements->total()}} </h4>
+            <br>
+            <table class="table table-hover" style="width:100%">
+                <tr>
+                    <th>Nuotrauka</th>
+                    <th>Pavadinimas</th>
+                    <th>Kaina</th>
+                    <th>Kainos pokytis</th>
+                    <th>Kategorija</th>
+                    <th>Tipas</th>
+                    <th>Svetainės logo</th>
+                </tr>
+                @foreach ($advertisements as $item)
+                <tr>
+                    <td><a href="{{$item['url']}}"><img src="{{$item['thumbnail']}}" style="width: 250px; height:175px"></td></a>
+                    <td><a href="/listing/{{$item['id']}}">{{$item['title']}}</a></td>
+                    <td>{{$item->getLastestPrice['price']}} €</td>
+                    <th><p style="color: green"> +0%</p></th>
+                    <td>{{$item->getCategory['title']}}</td>
+                    <td>{{$item->getType['title']}}</td>
+                    <td><img src="{{$item->getWebsite['logo']}}" style="width: 150px; height:100px"></td>
+                </tr>
+                @endforeach
+            </table>
+            <br>
+            <div>
+            {{ $advertisements->links() }}
+            </div>
+        </div>
+    @else
+        <div>
+            <h2>Nerasta skelbimų pagal pažymėta zona!</h2>
+        </div>
+    @endif
 </div>
 @endsection
 

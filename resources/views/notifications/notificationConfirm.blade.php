@@ -45,9 +45,8 @@
 
                             <div class="col-md-6">
                                 <select name="frequency" id="frequency">
-                                    <option value="1">Kiekviena diena</option>
-                                    <option value="2">Kai atsiranda naujas skelbimas zonoje</option>
-                                    <option value="3">Kada pasikeicia skelbimu zonoje kaina</option>
+                                    <option value="1">Kai atsiranda naujas skelbimas zonoje</option>
+                                    <option value="2">Kada pasikeicia skelbimu zonoje kaina</option>
                                 </select>
                             </div>
                         </div>
@@ -59,6 +58,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     {{ __('Uzsaugoti') }}
                                 </button>
+                                
                             </div>
                         </div>
                     </form>

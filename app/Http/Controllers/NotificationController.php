@@ -8,6 +8,8 @@ use App\Models\Notification;
 use App\Models\Advertisement;
 use App\Models\UserMessages;
 
+use App\Models\NotificationAdvertisements;
+
 class NotificationController extends Controller
 {
     public function showNotificationsList(){
@@ -17,12 +19,15 @@ class NotificationController extends Controller
     }
 
     public function showNotification($id){
-        $data = Notification::where('id', $id)->first();
+        $notificationData = Notification::where('id', $id)->first();
         $mapData = Advertisement::with('getLocation')->get();
 
-        $shapesData = json_decode($data->shapes, true);
+        $advertisementsIDs = NotificationAdvertisements::where('notification_id', $id)->pluck('advertisement_id')->toArray();
+        $advertisements = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->whereIn('id', $advertisementsIDs)->paginate(10);
 
-        return view('notifications.notification')->with('mapData', $mapData)->with('data', $data)->with('shapesData', $shapesData);
+        $shapesData = json_decode($notificationData->shapes, true);
+
+        return view('notifications.notification')->with('advertisements', $advertisements)->with('mapData', $mapData)->with('notificationData', $notificationData)->with('shapesData', $shapesData);
     }
 
     public function showNotificationConfirmPage(Request $request){
