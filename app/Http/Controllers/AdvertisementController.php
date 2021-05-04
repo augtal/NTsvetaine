@@ -6,14 +6,17 @@ use Illuminate\Http\Request;
 
 use App\Models\Advertisement;
 use App\Models\LikedAdvertisements;
-use Chartisan\PHP\Chartisan;
 
 use App\Models\AdvertCategories;
 use App\Models\AdvertTypes;
 
+use App\Models\UserMessages;
+
 class AdvertisementController extends Controller
 {
     public function showAdvertisementList(Request $request){
+        $messages = $this->getUserMessages();
+
         $filterInfo['types'] = AdvertTypes::get();
         $filterInfo['categories'] = AdvertCategories::get();
 
@@ -33,7 +36,16 @@ class AdvertisementController extends Controller
             $data = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->paginate(10);
         }
 
-        return view('listings.listingsList')->with('filterInfo', $filterInfo)->with('searchTerm', $search)->with('data', $data)->with('mapData', $mapData);
+        return view('listings.listingsList')->with('messages', $messages)->with('filterInfo', $filterInfo)->with('searchTerm', $search)->with('data', $data)->with('mapData', $mapData);
+    }
+
+    private function getUserMessages(){
+        if(auth()->user() != null){
+            $messages = UserMessages::where('user_id', auth()->user()->id)->get();
+            return $messages;
+        }
+
+        return null;
     }
 
     public function showAdvertisement($id){

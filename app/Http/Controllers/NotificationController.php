@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Notification;
 use App\Models\Advertisement;
+use App\Models\UserMessages;
 
 class NotificationController extends Controller
 {
@@ -102,5 +103,14 @@ class NotificationController extends Controller
         $c = !$c;
     }
     return $c;
+    }
+
+    public function getUserMessages(){
+        if(auth()->user() != null){
+            $messages = UserMessages::where('user_id', auth()->user()->id)->get();
+            return $messages;
+        }
+
+        return null;
     }
 }

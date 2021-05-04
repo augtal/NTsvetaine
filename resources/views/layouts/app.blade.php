@@ -23,8 +23,8 @@
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name') }}
+                <a class="navbar-brand" href="{{ url('/') }}"> 
+                    Nekilnojamo turto skelbimų surinkimo informacinė sistema
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
@@ -42,25 +42,65 @@
                         @guest
                             @if (Route::has('login'))
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+                                    <a class="nav-link" href="{{ route('login') }}">Prisijungti</a>
                                 </li>
                             @endif
                             
                             @if (Route::has('register'))
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                                    <a class="nav-link" href="{{ route('register') }}">Registruotis</a>
                                 </li>
                             @endif
                         @else
-                            <li class="nav-item">
-                                <a class="nav-link" href="/profile">Profilis</a>
+                            @if(count(session()->get('messages')) > 0)
+                                <li class="nav-item dropdown">
+                                    <a id="navbarDropdown" class="nav-link" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                        @if (count(session()->get('messages')) > 9)
+                                            <span class="badge badge-pill badge-danger">9+</span>
+                                        @else
+                                            <span class="badge badge-pill badge-danger">{{count(session()->get('messages'))}}</span>
+                                        @endif
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <a class="float-right" href="#">Pažymėti visus kaip perskaitytus.</a>
+                                        @foreach (session()->get('messages') as $message)
+                                        <div class="dropdown-item">
+                                            @if ($message['read_msg'] != 1)
+                                                <p><strong>{{$message['message']}}</strong></p>
+                                            @else
+                                                <p>{{$message['message']}}</p>
+                                            @endif
+                                            
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </li>
+                            @endif
+
+                            <li class="nav-item dropdown">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                    Profilis
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <div class="dropdown-item">
+                                        <a href="/profileEditPage"> Profilio redagavimas </a>
+                                    </div>
+
+                                    <div class="dropdown-item">
+                                        <a href="/likedListings"> Patinkantys skelbimai </a>
+                                    </div>
+
+                                    <div class="dropdown-item">
+                                        <a href="/notifications"> Pranešimų nustatymai </a>
+                                    </div>
+                                </div>
                             </li>
 
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
+                                    onclick="event.preventDefault();
+                                        document.getElementById('logout-form').submit();">
+                                        Atsijungti
                                 </a>
 
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
