@@ -8,10 +8,9 @@
             <table style="width:100%">
                 <tr>
                     <th>Pavadinimas</th>
-                    <th>Aprasymas</th>
-                    <th>Daznumas</th>
+                    <th>Aprašymas</th>
+                    <th>Dažnumas</th>
                     <th>Veiksmai</th>
-                    <th></th>
                 </tr>
                 @foreach ($notifications as $item)
                 <tr>
@@ -26,8 +25,8 @@
                             <h5>Kada pasikeicia skelbimu zonoje kaina</h5>
                         @endif
                     </td>
-                    <td><a href='/notification/{{$item['id']}}/edit'>Redaguoti pranesima</a></td>
-                    <td><a href='/notification/{{$item['id']}}/delete'>Naikinti pranesima</a></td>
+                    <td><a href='/notification/{{$item['id']}}/edit' class="btn btn-warning">Redaguoti</a>
+                    <a href='/notification/{{$item['id']}}/delete' class="btn btn-danger">Naikinti</a></td>
                 </tr>
                 @endforeach
             </table>

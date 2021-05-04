@@ -5,7 +5,9 @@
     <div>
         <form action="/" method="GET">
             <input type="text" name="search" id="search" value="{{ $searchTerm }}">
-            <button type="submit">Paieska</button>
+            <button type="submit" class="btn btn-primary">
+                Ieškoti
+            </button>
         </form>
     </div>
     <br>
@@ -16,7 +18,7 @@
         <form id="saveShapes" action="/showSaveNotification" method="post">
             @csrf
             <input type="hidden" name="saveShapesValues" id="saveShapesValues">
-            <button id="saveShapesButton" type="submit" class="btn btn-warning">Save</button>
+            <button id="saveShapesButton" type="submit" class="btn btn-warning">Užsaugoti zona</button>
         </form>
         <br>
     </div>
@@ -26,15 +28,15 @@
 
         <div id="filter-settings" style="display: none">
             <form action="/" method="GET">
-                <label for="min_price">Skelbimo maziausia kaina</label>
+                <label for="min_price">Skelbimo mažiausia kaina: </label>
                 <input type="number" id="min_price" name="filter[min_price]">
                 <br>
 
-                <label for="max_price">Skelbimo didziausia kaina</label>
+                <label for="max_price">Skelbimo didžiausia kaina: </label>
                 <input type="number" id="max_price" name="filter[max_price]">
                 <br>
 
-                <label for="type">Skelbimo tipas</label>
+                <label for="type">Skelbimo tipas: </label>
                 <select id="type" name="filter[type]">
                     <option value="" selected>-- Pasirinkite tipa --</option>
 
@@ -44,7 +46,7 @@
                 </select>
                 <br>
 
-                <label for="category">Skelbimo kategorija</label>
+                <label for="category">Skelbimo kategorija: </label>
                 <select id="category" name="filter[category]">
                     <option value="" selected>-- Pasirinkite kategorija --</option>
 
@@ -54,7 +56,7 @@
                 </select>
                 <br>
 
-                <button type="submit">Filtruoti</button>
+                <button type="submit" class="btn btn-info">Filtruoti</button>
             </form>
         </div>
     </div>

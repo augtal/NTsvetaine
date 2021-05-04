@@ -17,7 +17,7 @@ Auth::routes();
 
 Route::get('/', 'AdvertisementController@showAdvertisementList');
 
-Route::get('/home', 'AdvertisementController@showAdvertisementList');
+Route::get('/home', 'AdvertisementController@showAdvertisementList')->name('home');
 
 Route::get('/listingsList', 'AdvertisementController@showAdvertisementList')->name('advertisementList');
 

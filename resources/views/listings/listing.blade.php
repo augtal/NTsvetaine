@@ -8,16 +8,14 @@
     @else
         <div>
             @if ($favourite)
-                <h1>Sis skelbimas YRA jusu megstamiausiu sarase</h1>
                 <form action="/listing/{{$data['id']}}/fav" method="POST" >
                     @csrf
-                    <input type="submit" value="Unfavourite">
+                    <input type="submit" value="Nepatinka" class="btn btn-danger">
                 </form>
             @else
-                <h1>Sis skelbimas NERA jusu megstamiausiu sarase</h1>
                 <form action="/listing/{{$data['id']}}/fav" method="POST" >
                     @csrf
-                    <input type="submit" value="Favourite">
+                    <input type="submit" value="Patinka" class="btn btn-success">
                 </form>
             @endif
         </div>
@@ -41,7 +39,7 @@
                 <td>{{$data->getDetails['rooms']}}</td>
             </tr>
             <tr>
-                <th>Aukstas:</th>
+                <th>Aukštas:</th>
                 <td>{{$data->getDetails['floor']}}</td>
             </tr>
             <tr>
@@ -49,7 +47,7 @@
                 <td>{{$data->getDetails['buildingType']}}</td>
             </tr>
             <tr>
-                <th>Sildymas:</th>
+                <th>Šildymas:</th>
                 <td>{{$data->getDetails['heating']}}</td>
             </tr>
             <tr>
@@ -57,17 +55,18 @@
                 <td>{{$data->getDetails['year']}}</td>
             </tr>
             <tr>
-                <th>Skelbimo apibudinimas:</th>
+                <th>Skelbimo apibūdinimas:</th>
                 <td>{!! $data->getDetails['description'] !!}</td>
             </tr>
         </table>
     </div>
+    <br>
     <div>
-        <h2>Skelbimo orginali <a href="{{$data['url']}}">svetaine</a></h2>
+        <h2>Skelbimo orginali <a href="{{$data['url']}}">svetainė</a></h2>
     </div>
 
     <div>
-        <h3>Kainu Istorija:</h3>
+        <h3>Kainų istorija:</h3>
     </div>
 </div>
 @endsection
@@ -75,6 +74,7 @@
 @section('chart')
     <!-- Chart's container -->
     <div id="chart" style="height: 300px;"></div>
+    <br>
     
 
     <!-- Charting library -->

@@ -9,19 +9,19 @@
 
                 <div class="card-body">
                     <div class="form-group row">
-                        <div class="col-md-4 col-form-label text-md-right"> {{ __('Pavadinimas') }} </div>
+                        <div class="col-md-4 col-form-label text-md-right"> Pavadinimas </div>
 
                         <div class="col-md-6"> {{$data->title}} </div>
                     </div>
 
                     <div class="form-group row">
-                        <div class="col-md-4 col-form-label text-md-right"> {{ __('Aprasymas') }} </div>
+                        <div class="col-md-4 col-form-label text-md-right"> Aprašymas </div>
 
                         <div class="col-md-6"> {{$data->description}} </div>
                     </div>
 
                     <div class="form-group row">
-                        <div class="col-md-4 col-form-label text-md-right"> {{ __('Pavadinimas') }} </div>
+                        <div class="col-md-4 col-form-label text-md-right"> Dažnumas </div>
 
                         <div class="col-md-6">
                             @if ($data->frequency == 1)

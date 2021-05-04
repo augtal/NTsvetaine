@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ __('Notification Dashboard') }}</div>
+                <div class="card-header">Profilio redagavimas</div>
 
                 <div class="card-body">
 
@@ -20,7 +20,7 @@
 
                         <div class="row">
                             <div class="col">
-                                <label for="password" class="control-label">Current Password</label>
+                                <label for="password" class="control-label">Dabartinis slaptažodis</label>
                             </div>
                             <div class="col">
                                 {{Form::password('password', array('id' => 'password', 'class' => 'form-control', 'placeholder' => 'Password'))}}
@@ -36,7 +36,7 @@
                     <div class="form-group">
                         <div class="row">
                             <div class="col">
-                                <label for="new_password" class="control-label">New Password</label>
+                                <label for="new_password" class="control-label">Naujas slaptažodis</label>
                             </div>
                             <div class="col">
                                 {{Form::password('new_password', array('id' => 'new_password', 'class' => 'form-control', 'placeholder' => 'New Password'))}}
@@ -52,7 +52,7 @@
                     <div class="form-group">
                         <div class="row">
                             <div class="col">
-                                <label for="new_password-confirmation" class="control-label">Re-enter Password</label>
+                                <label for="new_password-confirmation" class="control-label">Pakartoti nauja slaptažodį</label>
                             </div>
                             <div class="col">
                                 {{Form::password('new_password-confirmation', array('id' => 'new_password-confirmation', 'class' => 'form-control', 'placeholder' => 'Confirm Password'))}}
@@ -66,7 +66,7 @@
                     @endif
 
                     <div class="form-group">
-                        <button type="submit" class="btn btn-danger">Change Password</button>
+                        <button type="submit" class="btn btn-danger">Pakeisti slaptažodį</button>
                     </div>
                     {{Form::close()}}
                 @endif
