@@ -55,23 +55,28 @@
                             @if(count(session()->get('messages')) > 0)
                                 <li class="nav-item dropdown">
                                     <a id="navbarDropdown" class="nav-link" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        @if (count(session()->get('messages')) > 9)
+                                        Pranešimai
+                                        @if (session()->get('unreadMsgCnt') > 9)
                                             <span class="badge badge-pill badge-danger">9+</span>
+                                        @elseif (session()->get('unreadMsgCnt') == 0)
+                                            <span> </span>
                                         @else
-                                            <span class="badge badge-pill badge-danger">{{count(session()->get('messages'))}}</span>
+                                            <span class="badge badge-pill badge-danger">{{session()->get('unreadMsgCnt')}}</span>
                                         @endif
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="float-right" href="#">Pažymėti visus kaip perskaitytus.</a>
+                                        <a class="float-right" href="/markMsgsRead">Pažymėti visus kaip perskaitytus.</a>
+
                                         @foreach (session()->get('messages') as $message)
-                                        <div class="dropdown-item">
-                                            @if ($message['read_msg'] != 1)
-                                                <p><strong>{{$message['message']}}</strong></p>
-                                            @else
-                                                <p>{{$message['message']}}</p>
-                                            @endif
-                                            
-                                        </div>
+                                            <a href="/notification/{{$message['notification_id']}}">
+                                                <div class="dropdown-item">
+                                                    @if ($message['read_msg'] != 1)
+                                                        <p><strong>{{$message['message']}}</strong></p>
+                                                    @else
+                                                        <p>{{$message['message']}}</p>
+                                                    @endif
+                                                </div>
+                                            </a>
                                         @endforeach
                                     </div>
                                 </li>

@@ -11,6 +11,7 @@ use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Models\LikedAdvertisements;
 use App\Models\Advertisement;
+use App\Models\UserMessages;
 
 class UserController extends Controller
 {
@@ -103,5 +104,22 @@ class UserController extends Controller
         ], $messages);
 
         return $validator;
+    }
+
+    public function markAllMsgAsRead(){
+        $messages = UserMessages::where('user_id', auth()->user()->id)->where('read_msg', 0)->get();
+
+        foreach($messages as $msg){
+            $msg->new_msg = 0;
+            $msg->read_msg = 1;
+            $msg->save();
+        }
+
+        $messages = UserMessages::where('user_id', auth()->user()->id)->orderBy('updated_at')->get()->toArray();
+
+        session()->put('messages', $messages);
+        session()->put('unreadMsgCnt', 0);
+
+        return redirect()->back();
     }
 }

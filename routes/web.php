@@ -55,4 +55,6 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::post('/notification/{id}/saveEdit', 'NotificationController@editNotification');
 
     Route::get('/notification/{id}/delete', 'NotificationController@deleteNotification');
+
+    Route::get('/markMsgsRead', 'UserController@markAllMsgAsRead');
 });

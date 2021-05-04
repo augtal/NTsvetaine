@@ -28,10 +28,12 @@ class UserSessionListener
      */
     public function handle(Login $event)
     {
-        $messages = UserMessages::where('user_id', auth()->user()->id)->get()->toArray();
+        $messages = UserMessages::where('user_id', auth()->user()->id)->orderBy('updated_at')->get()->toArray();
+        $unreadMsgCount = UserMessages::where('user_id', auth()->user()->id)->where('read_msg', 0)->get()->count();
 
         session([
             'messages' => $messages,
+            'unreadMsgCnt' => $unreadMsgCount
         ]);
     }
 }
