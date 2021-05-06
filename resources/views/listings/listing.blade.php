@@ -22,7 +22,11 @@
     @endguest
     <br>
     <div>
-        <img src="{{$data['thumbnail']}}">
+        @if ($data['archived'] == 1)
+            <h2>Archyvuota</h2>
+        @else
+            <img src="{{$data['thumbnail']}}">
+        @endif
     </div>
     <div>
         <table style="width:100%">
@@ -62,7 +66,16 @@
     </div>
     <br>
     <div>
-        <h2>Skelbimo orginali <a href="{{$data['url']}}">svetainė</a></h2>
+        <h2>Skelbimo orginali @if ($data['id'] == 26)
+            <a href="http://www.ntportalas.lt/">
+        @elseif ($data['id'] == 25)
+            <a href="http://www.ntportalas.lt/">
+        @elseif ($data['id'] == 81)
+            <a href="http://www.ntportalas.lt/">
+        @else
+            <a href="{{$data['url']}}">
+        @endif
+        svetainė</a></h2>
     </div>
 
     <div>

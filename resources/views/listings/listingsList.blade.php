@@ -73,15 +73,48 @@
                     <th>Kategorija</th>
                     <th>Tipas</th>
                     <th>Svetainės logo</th>
+                    @auth
+                        @if (auth()->user()->isAdmin())
+                            <th>Veiksmai</th>
+                        @endif
+                    @endauth
                 </tr>
                 @foreach ($data as $item)
                 <tr>
-                    <td><a href="{{$item['url']}}"><img src="{{$item['thumbnail']}}" style="width: 250px; height:175px"></td></a>
+                    @if ($item['archived'] == 1)
+                        <td class="align-middle">
+                            <div class="d-flex justify-content-center">
+                                <h4>Archyvuota</h4>
+                            </div>
+                        </td>
+                    @else
+                        <td>
+                            <a href="{{$item['url']}}"><img src="{{$item['thumbnail']}}" style="width: 250px; height:175px"></a>
+                        </td>
+                    @endif
                     <td><a href="/listing/{{$item['id']}}">{{$item['title']}}</a></td>
                     <td>{{$item->getLastestPrice['price']}} €</td>
                     <td>{{$item->getCategory['title']}}</td>
                     <td>{{$item->getType['title']}}</td>
-                    <td><img src="{{$item->getWebsite['logo']}}" style="width: 150px; height:100px"></td>
+                    <td>@if ($item['id'] == 26)
+                        <img src="http://www.ntportalas.lt/images/logo.png" style="width: 150px; height:60px">
+                    @elseif ($item['id'] == 25)
+                        <img src="http://www.ntportalas.lt/images/logo.png" style="width: 150px; height:60px">
+                    @elseif ($item['id'] == 81)
+                        <img src="http://www.ntportalas.lt/images/logo.png" style="width: 150px; height:60px">
+                    @else
+                        <img src="{{$item->getWebsite['logo']}}" style="width: 150px; height:100px">
+                    @endif
+                    </td>
+                    @auth
+                        @if (auth()->user()->isAdmin())
+                            @if ($item['archived'] == 1)
+                                <td><a href="/archive/{{$item['id']}}" class="btn btn-info">Išarchyvuoti</a></td>
+                            @else
+                                <td><a href="/archive/{{$item['id']}}" class="btn btn-info">Archyvuoti</a></td>
+                            @endif
+                        @endif
+                    @endauth
                 </tr>
                 @endforeach
             </table>

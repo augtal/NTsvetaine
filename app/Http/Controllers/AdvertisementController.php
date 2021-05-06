@@ -30,11 +30,11 @@ class AdvertisementController extends Controller
             $data = Advertisement::query()
                     ->where('title', 'LIKE', "%{$search}%")
                     ->orWhere('adress', 'LIKE', "%{$search}%")
-                    ->paginate(10);
+                    ->orderBy('updated_at', 'DESC')->paginate(10);
             $data->appends(['search' => $search]);
         }
         else{
-            $data = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->paginate(10);
+            $data = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->orderBy('updated_at', 'DESC')->paginate(10);
         }
 
         return view('listings.listingsList')->with('filterInfo', $filterInfo)->with('searchTerm', $search)->with('data', $data)->with('mapData', $mapData);
@@ -105,6 +105,21 @@ class AdvertisementController extends Controller
         #if user wants to remove advertisement from favorites
         else{
             $likedAd->delete();
+        }
+
+        return redirect()->back();
+    }
+
+    public function archiveAdvertisement($id){
+        $advertisement = Advertisement::find($id);
+
+        if($advertisement->archived == 1){
+            $advertisement->archived = 0;
+            $advertisement->save();
+        }
+        else{
+            $advertisement->archived = 1;
+            $advertisement->save();
         }
 
         return redirect()->back();

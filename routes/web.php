@@ -29,6 +29,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/userList', 'UserController@showUserList');
 
     Route::get('/changeRole/{id}', 'UserController@changeUserRole');
+
+    Route::get('/archive/{id}', 'AdvertisementController@archiveAdvertisement');
 });
 
 Route::middleware(['auth', 'user'])->group(function () {
