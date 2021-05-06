@@ -98,6 +98,16 @@
                                     <div class="dropdown-item">
                                         <a href="/notifications"> Pranešimų nustatymai </a>
                                     </div>
+
+                                    @if (auth()->user()->isAdmin())
+                                        <div class="dropdown-item">
+                                            <a href="/userList"> Naudotoju sarasas </a>
+                                        </div>
+
+                                        <div class="dropdown-item">
+                                            <a href="/scrapper"> Paleisti interneti vora </a>
+                                        </div>
+                                    @endif
                                 </div>
                             </li>
 

@@ -29,7 +29,7 @@
                     </td>
                     <td>@if ($item['id'] != auth()->user()->id)
                             <a href='/changeRole/{{$item['id']}}' class="btn btn-success">Pakeisti</a>
-                            <a href='#' class="btn btn-danger">Pašalinti</a>
+                            <a href='/deleteUser/{{$item['id']}}' class="btn btn-danger">Pašalinti</a>
                         @endif
                     </td>
                 </tr>

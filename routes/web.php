@@ -30,6 +30,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/changeRole/{id}', 'UserController@changeUserRole');
 
+    Route::get('/deleteUser/{id}', 'UserController@deleteUser');
+
     Route::get('/archive/{id}', 'AdvertisementController@archiveAdvertisement');
 });
 

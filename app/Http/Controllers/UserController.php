@@ -122,4 +122,11 @@ class UserController extends Controller
 
         return redirect()->back();
     }
+
+    public function deleteUser($id){
+        $user = User::find($id);
+        $user->delete();
+
+        return redirect()->back();
+    }
 }
