@@ -129,7 +129,27 @@ class NotificationController extends Controller
                 }
             }
             elseif($shape['type'] == 'circle'){
+                $extra = 0.5;
+                $maxLat = $shape['cords']['bounds']['north'] + $extra;
+                $minLat = $shape['cords']['bounds']['south'] - $extra;
+                $maxLng = $shape['cords']['bounds']['east'] + $extra;
+                $minLng = $shape['cords']['bounds']['west'] - $extra;
 
+                $points = AdvertisementLocation::whereBetween('lat', [$minLat, $maxLat])->
+                                                whereBetween('lng', [$minLng, $maxLng])->get();
+
+                foreach($points as $point){
+                    if($this->pointInCircle($point, $shape['cords'])){
+                        $inside = $point->advertisement_id;
+                        echo $inside . "<br>";
+
+                        $notifiAdvert = NotificationAdvertisements::firstOrNew(
+                            ['notification_id' => $notificationID, 
+                            'advertisement_id' => $point->advertisement_id],);
+                        
+                        $notifiAdvert->save();
+                    }
+                }
             }
             elseif($shape['type'] == 'rectangle'){
                 
@@ -137,7 +157,24 @@ class NotificationController extends Controller
         }
     }
 
-    function calc_attribute_in_array($array, $prop, $func) {
+    private function pointInCircle($point, $circle){
+        //pritaikysime Haversine formule
+        $earth_radius = 6371;
+    
+        $dLat = deg2rad($circle['center']['lat'] - $point['lat']);  
+        $dLon = deg2rad($circle['center']['lng'] - $point['lng']);  
+    
+        $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($point['lat'])) * cos(deg2rad($circle['center']['lat'])) * sin($dLon/2) * sin($dLon/2);  
+        $c = 2 * asin(sqrt($a));  
+        $dist = $earth_radius * $c;  
+
+        //radius google api yra issaugomas metrais
+        return $dist <= $circle['radius']/1000;
+    }
+
+
+
+    private function calc_attribute_in_array($array, $prop, $func) {
         $result = array_column($array, $prop);
     
         if(function_exists($func)) {
@@ -156,7 +193,7 @@ class NotificationController extends Controller
 
             if ($vertex1['lng'] == $vertex2['lng'] && 
                 $vertex1['lng'] == $point['lng'] && 
-                //patikrinam ar tarp virsuniu horizontaliai x asyje | x=lat
+                //patikrinam ar tarp virsuniu horizontaliai lat asyje | lat=lat
                 $point['lat'] > min($vertex1['lat'], $vertex2['lat']) && 
                 $point['lat'] < max($vertex1['lat'], $vertex2['lat'])) 
                 { 
@@ -165,7 +202,7 @@ class NotificationController extends Controller
             }
 
             if ($vertex1['lng'] != $vertex2['lng'] &&
-                //patikrinam ar tarp virsuniu verticaliai y asyje | y=lng
+                //patikrinam ar tarp virsuniu verticaliai lng asyje | lng=lng
                 $point['lng'] > min($vertex1['lng'], $vertex2['lng']) &&
                 $point['lng'] <= max($vertex1['lng'], $vertex2['lng']) &&
                 $point['lat'] < max($vertex1['lat'], $vertex2['lat'])) 

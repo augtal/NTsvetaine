@@ -257,7 +257,8 @@
                     let cordArray = new Array();
                     cordArray = {
                         'center': {'lat':center.lat(), 'lng':center.lng()},
-                        'radius': event.overlay.getRadius()
+                        'radius': event.overlay.getRadius(),
+                        'bounds': event.overlay.getBounds()
                     };
                     shapes.push({'type':'circle','cords': cordArray });
                 }
