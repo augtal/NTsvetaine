@@ -89,7 +89,11 @@
                         </td>
                     @else
                         <td>
-                            <a href="{{$item['url']}}"><img src="{{$item['thumbnail']}}" style="width: 250px; height:175px"></a>
+                            @if (file_exists('images/AdvertisementsThumbnails/'.$item['id'].".jpg"))
+                                <a href="{{$item['url']}}"><img src="{{url('images/AdvertisementsThumbnails/'.$item['id'].".jpg")}}" style="width: 250px; height:175px"></a>
+                            @else
+                                <!--<a href="{{$item['url']}}"><img src="{{$item['thumbnail']}}" style="width: 250px; height:175px"></a>-->
+                            @endif
                         </td>
                     @endif
                     <td><a href="/listing/{{$item['id']}}">{{$item['title']}}</a></td>

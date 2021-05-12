@@ -17,8 +17,11 @@ use App\Models\REWebsites;
 
 class WebScrapperController extends Controller
 {
+    private $DomoAdsPerPage = 30;
+    private $NTportalasAdsPerPage = 20;
+
     public function index(){
-        $REWebsiteList = REWebPages::all()->toArray();
+        $REWebsiteList = REWebsites::all();
 
         foreach($REWebsiteList as $website){
             $this->scrape($website);
@@ -27,92 +30,70 @@ class WebScrapperController extends Controller
         echo "End of scraping";
     }
 
-    private function dwnImage($imgUrl, $advertID){
-        $outputFilename = $advertID;
-        $host = $imgUrl;
-
-        $file_name = basename($imgUrl);
-
-        $dir = "./public/images/AdvertisementsThumbnails";
-
-        $saveOutputLocation = $dir . $file_name;
-
-        $fp = fopen($saveOutputLocation, 'wb');
-
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, $host);
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_AUTOREFERER, false);
-        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-
-        $result = curl_exec($ch);
-
-        curl_close($ch);
-
-        
-        fwrite($fp, $result);
-        fclose($fp);
+    public function summonMainMethod(){
+        echo "Test method";
+        return;
     }
 
     private function scrape($website){
-        $websiteName = REWebsites::where('id', $website['id'])->first()->toArray();
-
+        $websitePages = REWebPages::where('r_e_websites_id', $website->id)->get();
+        echo "Start scraping:" . "<br>";
         //domoplius svetaine
-        if($websiteName['title'] == 'Domoplius'){
-            $this->scrapeDomoAll($website);
+        if($website->title == 'Domoplius'){
+            foreach($websitePages as $REWebPage){
+                echo "<br>";
+                echo "Advertisements from: " . $REWebPage['url'];
+                echo "<br>";
+                echo "============================================";
+                $this->scrapeDomoAll($REWebPage);
+            }
         }
     }
 
-    private function scrapeDomoAll($website){
+    private function scrapeDomoAll($REWebPage){
         $client = new Client();
 
-        $crawler = $client->request('GET', $website['url']);
+        $crawler = $client->request('GET', $REWebPage['url']);
 
         $adAmount = (int)substr($crawler->filter('div.cntnt-box-fixed > div.listing-title > span')->text(), 1, -1);
-        $adsPerPage = 30;
         
         $a=0;
 
-        if($adAmount % $adsPerPage > 0) $pages = (int)($adAmount / $adsPerPage + 1);
-        else $pages = $adAmount / $adsPerPage;
+        if($adAmount % $this->DomoAdsPerPage > 0) $pages = (int)($adAmount / $this->DomoAdsPerPage + 1);
+        else $pages = $adAmount / $this->DomoAdsPerPage;
 
         #------------------------------------------------------------------------------------------------------------------------------------------------
         #remove limiter
-        $pages = 2;
+        $pages = 1;
         #------------------------------------------------------------------------------------------------------------------------------------------------
         
         for ($i = 1; $i <= $pages; $i++) {
-            $url = substr($website['url'], 0, -1) . $i;
+            $url = substr($REWebPage['url'], 0, -1) . $i;
             $crawler = $client->request('GET', $url);
 
-            $adsInfo = $this->getPageAdsInfo($crawler);
+            $adsInfo = $this->getDomoPageAdsInfo($crawler);
 
             foreach($adsInfo as $info){
                 $l = "";
                 if( strpos($info['url'], 'domoplius') !== FALSE){
-                    #check if add exists
-                    $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->first();
+                    #patikrinti ar skelbimas is sitos svetaines jau yra
+                    $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->where('r_e_websites_id', 1)->first();
                     if($adID != null){
-                        #update price
+                        #atnaujinti kaina
                         $adID->touch();
                         AdvertisementDetails::where('advertisement_id', $adID->id)->first()->touch();
                         $this->updateAdvertisementPrices($info['price'], $adID->id);
                         $l = "U |";
                     }
                     else{
-                        #create new
+                        #sukurti nauja
                         $result = $this->scrapeDomoSingle($client, $info['url']);
                         $detailedInfo = $this->fixResultsDomo($result);
-                        $id = $this->insertToAdvertisement($website, $info, $detailedInfo);
-                        $this->insertToAdvertisementLocation($detailedInfo, $id);
-                        $this->insertToAdvertisementDetails($detailedInfo, $id);
-                        $this->insertToAdvertisementPrices($info, $id);
+                        $advertisement = $this->insertToAdvertisement($REWebPage, $info, $detailedInfo);
+                        $this->downloadAdvertisementThumbnail($advertisement);
+                        $this->insertToAdvertisementLocation($detailedInfo, $advertisement->id);
+                        $this->insertToAdvertisementDetails($detailedInfo, $advertisement->id);
+                        $this->insertToAdvertisementPrices($info, $advertisement->id);
                         $l = "C |";
                     }
                     
@@ -124,12 +105,8 @@ class WebScrapperController extends Controller
         }
     }
 
-    private function getPageAdsInfo($crawler){
+    private function getDomoPageAdsInfo($crawler){
         $adsInfo = Array();
-
-        #container > section > div.small-wrapper > div.content-wrapper > main > div.cntnt-box-fixed > ul
-        #ann_7272619 > div > div.thumb.fl
-        #ann_7272619 > div > div.thumb.fl > a > img
 
         $crawler->filter('main > div.cntnt-box-fixed > ul.auto-list')->children()->each(function ($node) use (&$adsInfo){
             $info = Array();
@@ -154,63 +131,6 @@ class WebScrapperController extends Controller
             }
         });
         return $adsInfo;
-    }
-
-    private function insertToAdvertisement($website, $adsInfo, $detailedInfo){
-        $advertisement = new Advertisement();
-
-        $advertisement->title = $adsInfo['title'];
-        $advertisement->category = $website['category'];
-        $advertisement->type = $website['type'];
-        $advertisement->area = $adsInfo['area'];
-        $advertisement->adress = $detailedInfo['adress'];
-        $advertisement->r_e_websites_id = $website['r_e_websites_id']; 
-        $advertisement->thumbnail = $adsInfo['imgUrl'];
-        $advertisement->url = $adsInfo['url'];
-        $advertisement->save();
-
-        return $advertisement->id;
-    }
-
-    private function insertToAdvertisementLocation($detailedInfo, $id){
-        $location = new AdvertisementLocation();
-
-        $location->advertisement_id = $id;
-        $location->lat = $detailedInfo['lat'];
-        $location->lng = $detailedInfo['lng'];
-        $location->save();
-    }
-
-    private function insertToAdvertisementDetails($detailedInfo, $id){
-        $details = new AdvertisementDetails();
-
-        $details->advertisement_id = $id;
-        $details->rooms = $detailedInfo['rooms'];
-        $details->floor = $detailedInfo['floor'];
-        $details->buildingType = $detailedInfo['buildingType'];
-        $details->heating = $detailedInfo['heating'];
-        $details->year = $detailedInfo['year'];
-        $details->description = $detailedInfo['description'];
-        $details->save();
-    }
-
-    private function insertToAdvertisementPrices($adsInfo, $id){
-        $prices = new AdvertisementPrices();
-
-        $prices->advertisement_id = $id;
-        $prices->price = $adsInfo['price'];
-        $prices->save();
-    }
-
-    private function updateAdvertisementPrices($adsPrice, $id){
-        #updates old price updated_at field, by imitating a change
-        AdvertisementPrices::where('advertisement_id', $id)->orderBy('id', 'desc')->first()->touch();
-
-        #sets new price
-        $newPrice = new AdvertisementPrices();
-        $newPrice->advertisement_id = $id;
-        $newPrice->price = $adsPrice;
-        $newPrice->save();
     }
 
     private function scrapeDomoSingle($client, $link){
@@ -241,7 +161,12 @@ class WebScrapperController extends Controller
         #aprasymas
         $amount = $crawler->filter('div.col-right > div.medium.info-block')->children()->count();
         $descriptionMarker = "div.col-right > div.medium.info-block > div:nth-child(" . $amount - 3 . ")"; # - 3, nes komentarai yra 3 nuo galo <br><div><div>
-        $description = $crawler->filter($descriptionMarker)->html();#issaugomas su <br>
+        if($crawler->filter($descriptionMarker)->count()){
+            $description = $crawler->filter($descriptionMarker)->html();#issaugomas su <br>
+        }
+        else{
+            $description = "";
+        }
         $results['description'] = $description;
 
         #lng/lat
@@ -309,5 +234,86 @@ class WebScrapperController extends Controller
             $fixed['lat'] = 0.0;
 
         return $fixed;
+    }
+
+    private function insertToAdvertisement($REWebPage, $adsInfo, $detailedInfo){
+        $advertisement = new Advertisement();
+
+        $advertisement->title = $adsInfo['title'];
+        $advertisement->category = $REWebPage['category'];
+        $advertisement->type = $REWebPage['type'];
+        $advertisement->area = $adsInfo['area'];
+        $advertisement->adress = $detailedInfo['adress'];
+        $advertisement->r_e_websites_id = $REWebPage['r_e_websites_id']; 
+        $advertisement->thumbnail = $adsInfo['imgUrl'];
+        $advertisement->url = $adsInfo['url'];
+        $advertisement->save();
+
+        return $advertisement;
+    }
+
+    private function insertToAdvertisementLocation($detailedInfo, $id){
+        $location = new AdvertisementLocation();
+
+        $location->advertisement_id = $id;
+        $location->lat = $detailedInfo['lat'];
+        $location->lng = $detailedInfo['lng'];
+        $location->save();
+    }
+
+    private function insertToAdvertisementDetails($detailedInfo, $id){
+        $details = new AdvertisementDetails();
+
+        $details->advertisement_id = $id;
+        $details->rooms = $detailedInfo['rooms'];
+        $details->floor = $detailedInfo['floor'];
+        $details->buildingType = $detailedInfo['buildingType'];
+        $details->heating = $detailedInfo['heating'];
+        $details->year = $detailedInfo['year'];
+        $details->description = $detailedInfo['description'];
+        $details->save();
+    }
+
+    private function insertToAdvertisementPrices($adsInfo, $id){
+        $prices = new AdvertisementPrices();
+
+        $prices->advertisement_id = $id;
+        $prices->price = $adsInfo['price'];
+        $prices->save();
+    }
+
+    private function updateAdvertisementPrices($adsPrice, $id){
+        #updates old price updated_at field, by imitating a change
+        AdvertisementPrices::where('advertisement_id', $id)->orderBy('id', 'desc')->first()->touch();
+
+        #sets new price
+        $newPrice = new AdvertisementPrices();
+        $newPrice->advertisement_id = $id;
+        $newPrice->price = $adsPrice;
+        $newPrice->save();
+    }
+
+    private function downloadAdvertisementThumbnail($advertisement) {
+        if(strlen($advertisement->thumbnail) > 0){
+            $ch = curl_init();
+        
+            curl_setopt($ch, CURLOPT_URL, $advertisement->thumbnail);
+            curl_setopt($ch, CURLOPT_VERBOSE, 1);
+            
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_AUTOREFERER, false);
+            curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        
+            $data = curl_exec($ch);
+            curl_close($ch);
+
+            $extension = explode(".", $advertisement->thumbnail);
+            $fileName = "" . $advertisement->id . "." . $extension[count($extension)-1];
+
+            file_put_contents("images/AdvertisementsThumbnails/" . $fileName, $data);
+        }
     }
 }

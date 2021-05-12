@@ -96,7 +96,7 @@ class NotificationController extends Controller
         return;
     }
 
-    public function findAdsInsideNotification($notificationID=3){
+    public function findAdsInsideNotification($notificationID){
         $notification = Notification::find($notificationID);
 
         $shapes = json_decode($notification->shapes, true);
@@ -107,10 +107,10 @@ class NotificationController extends Controller
                 array_push($shapeCordinates, $shapeCordinates[0]);
 
                 $extra = 0.5;
-                $maxLat = $this->calc_attribute_in_array($shapeCordinates, 'lat', 'max') + $extra;
-                $minLat = $this->calc_attribute_in_array($shapeCordinates, 'lat', 'min') - $extra;
-                $maxLng = $this->calc_attribute_in_array($shapeCordinates, 'lng', 'max') + $extra;
-                $minLng = $this->calc_attribute_in_array($shapeCordinates, 'lng', 'min') - $extra;
+                $maxLat = $this->calcAttributeArray($shapeCordinates, 'lat', 'max') + $extra;
+                $minLat = $this->calcAttributeArray($shapeCordinates, 'lat', 'min') - $extra;
+                $maxLng = $this->calcAttributeArray($shapeCordinates, 'lng', 'max') + $extra;
+                $minLng = $this->calcAttributeArray($shapeCordinates, 'lng', 'min') - $extra;
 
                 $points = AdvertisementLocation::whereBetween('lat', [$minLat, $maxLat])->
                                                 whereBetween('lng', [$minLng, $maxLng])->get();
@@ -168,13 +168,13 @@ class NotificationController extends Controller
         $c = 2 * asin(sqrt($a));  
         $dist = $earth_radius * $c;  
 
-        //radius google api yra issaugomas metrais
+        //radius google api yra issaugomas metrais todel padaliname is 1000
         return $dist <= $circle['radius']/1000;
     }
 
 
 
-    private function calc_attribute_in_array($array, $prop, $func) {
+    private function calcAttributeArray($array, $prop, $func) {
         $result = array_column($array, $prop);
     
         if(function_exists($func)) {
