@@ -92,7 +92,7 @@
                             @if (file_exists('images/AdvertisementsThumbnails/'.$item['id'].".jpg"))
                                 <a href="{{$item['url']}}"><img src="{{url('images/AdvertisementsThumbnails/'.$item['id'].".jpg")}}" style="width: 250px; height:175px"></a>
                             @else
-                                <!--<a href="{{$item['url']}}"><img src="{{$item['thumbnail']}}" style="width: 250px; height:175px"></a>-->
+                                <a href="{{$item['url']}}"><img src="{{$item['thumbnail']}}" style="width: 250px; height:175px"></a>
                             @endif
                         </td>
                     @endif
@@ -107,7 +107,7 @@
                     @elseif ($item['id'] == 81)
                         <img src="http://www.ntportalas.lt/images/logo.png" style="width: 150px; height:60px">
                     @else
-                        <img src="{{$item->getWebsite['logo']}}" style="width: 150px; height:100px">
+                        <img src="{{url('images/RealEstateWebsiteLogos/'.$item->getWebsite['id'].".png")}}" style="width: 150px; height:35px">
                     @endif
                     </td>
                     @auth
