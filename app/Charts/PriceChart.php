@@ -22,7 +22,8 @@ class PriceChart extends BaseChart
     {
         $id = $request->id;
 
-        $data = AdvertisementPrices::where('advertisement_id', $id)->orderBy('created_at', 'asc')->orderBy('updated_at', 'asc')->take(30)->get()->toArray();
+        $data = AdvertisementPrices::where('advertisement_id', $id)->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->take(30)->get()->toArray();
+        $data = array_reverse($data);
 
         $labels = [];
         $dataset = [];
