@@ -17,6 +17,7 @@ class CreateAdvertisementPricesTable extends Migration
             $table->id();
             $table->foreignId('advertisement_id'); //svetaine, 
             $table->double('price', 10,2);
+            $table->double('priceChange', 4,1);
             $table->timestamps();
             
             $table->foreign('advertisement_id')->references('id')->on('advertisements');
