@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+
+use App\Traits\FindNotificationsTrait;
+use App\Traits\CreateUserMessageTrait;
+
 use Illuminate\Http\Request;
 use Goutte\Client;
 
@@ -10,13 +14,17 @@ use App\Models\Advertisement;
 use App\Models\AdvertisementLocation;
 use App\Models\AdvertisementDetails;
 use App\Models\AdvertisementPrices;
-
+use App\Models\Notification;
+use App\Models\NotificationAdvertisements;
 #nekilnojamo turto svetainiu sarasas
 use App\Models\REWebPages;
 use App\Models\REWebsites;
 
 class WebScrapperController extends Controller
 {
+    use FindNotificationsTrait;
+    use CreateUserMessageTrait;
+
     private $DomoAdsPerPage = 30;
     private $NTportalasAdsPerPage = 25;
     private $CapitalAdsPerPage = 20;
@@ -29,13 +37,44 @@ class WebScrapperController extends Controller
         $website = REWebsites::find(2);
         $websitePages = REWebPages::where('r_e_websites_id', $website->id)->first();
 
-        $this->scrapeNtportalasAll($websitePages);
+        //$this->scrapeNtportalasAll($websitePages);
 
         /*
         foreach($REWebsiteList as $website){
             $this->scrape($website);
         }
         */
+
+        $notifications = Notification::all();
+
+        foreach($notifications as $notification){
+            //1 Kai atsiranda naujas skelbimas zonoje
+            if($notification->frequency == 1){
+                $amount = $this->findAdsInsideNotification($notification);
+                if($notification->advertisement_count < $amount){
+                    $messageAddon = "Atsirano naujas skelbimas.";
+                    $this->createNewMessage($notification, $messageAddon);
+
+                    $notification->advertisement_count = $amount;
+                    $notification->save();
+                }
+            }
+            //2 Kada pasikeicia skelbimu zonoje kaina
+            elseif($notification->frequency == 2){
+                $advertisementList = NotificationAdvertisements::where('notification_id', $notification->id)->get();
+
+                foreach($advertisementList as $singleAdvertisement){
+                    $id = $singleAdvertisement->advertisement_id;
+                    $prices = AdvertisementPrices::where('advertisement_id', $singleAdvertisement->advertisement_id)->orderBy('updated_at', 'desc')->orderBy('created_at', 'desc')->take(2)->get()->toArray();
+
+                    if($prices[0]['price'] != $prices[1]['price']){
+                        $messageAddon = "Pasikeite skelbimo kaina.";
+                        $this->createNewMessage($notification, $messageAddon);
+                        break;
+                    }
+                }
+            }
+        }
 
         echo "End of scraping";
     }
@@ -54,7 +93,6 @@ class WebScrapperController extends Controller
             }
         }
         elseif($website->title == 'NTportalas'){
-            continue;
             foreach($websitePages as $REWebPage){
                 echo "<br>";
                 echo "Advertisements from: " . $REWebPage['url'];
@@ -615,17 +653,22 @@ class WebScrapperController extends Controller
 
         $prices->advertisement_id = $id;
         $prices->price = $adsInfo['price'];
+        $prices->priceChange = 0;
         $prices->save();
     }
 
     private function updateAdvertisementPrices($adsPrice, $id){
         #updates old price updated_at field, by imitating a change
-        AdvertisementPrices::where('advertisement_id', $id)->orderBy('id', 'desc')->first()->touch();
+        $oldPrice = AdvertisementPrices::where('advertisement_id', $id)->orderBy('id', 'desc')->first();
+        $oldPrice->touch();
+
+        $changeAmount = round((($adsPrice * 100) / $oldPrice) - 100, 1);
 
         #sets new price
         $newPrice = new AdvertisementPrices();
         $newPrice->advertisement_id = $id;
         $newPrice->price = $adsPrice;
+        $newPrice->priceChange = $changeAmount;
         $newPrice->save();
     }
 
@@ -653,13 +696,24 @@ class WebScrapperController extends Controller
         }
     }
 
+
+    // tester code (depricated)
     public function summonMainMethod(){
         echo "Test method";
+        echo "<br>";
 
+        $oldPrice = 32500.00;
+        $adsPrice = 32500.00;
+        $changeAmount = round((($adsPrice * 100) / $oldPrice) - 100, 1);
+
+        echo $changeAmount . "%";
+
+        /*
         $imgURL = 'https://www.capital.lt/image/catalog/capital_logo.png';
         $imgID = 3;
         $this->downloadWebsiteLogo($imgURL, $imgID);
         return;
+        */
     }
 
     private function downloadWebsiteLogo($url, $id) {
