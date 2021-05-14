@@ -20,6 +20,7 @@ class CreateNotificationsTable extends Migration
             $table->text('description')->nullable();
             $table->integer('frequency');
             $table->json('shapes');
+            $table->integer('advertisement_count');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');
