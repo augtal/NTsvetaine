@@ -7,11 +7,8 @@ use App\Models\AdvertisementLocation;
 use App\Models\NotificationAdvertisements;
 
 trait FindNotificationsTrait {
-    public function findAdsInsideNotification($notificationID){
-        $notification = Notification::find($notificationID);
-
+    public function findAdsInsideNotification($notification){
         $shapes = json_decode($notification->shapes, true);
-
         $foundAmount = 0;
 
         foreach($shapes as $shape){
@@ -31,7 +28,7 @@ trait FindNotificationsTrait {
                 foreach($points as $point){
                     if($this->pointInPolygon($point, $shapeCordinates)){
                         $notifiAdvert = NotificationAdvertisements::firstOrNew(
-                            ['notification_id' => $notificationID, 
+                            ['notification_id' => $notification->id, 
                             'advertisement_id' => $point->advertisement_id],);
                         
                         $notifiAdvert->save();
@@ -55,7 +52,7 @@ trait FindNotificationsTrait {
                         echo $inside . "<br>";
 
                         $notifiAdvert = NotificationAdvertisements::firstOrNew(
-                            ['notification_id' => $notificationID, 
+                            ['notification_id' => $notification->id, 
                             'advertisement_id' => $point->advertisement_id],);
                         
                         $notifiAdvert->save();
