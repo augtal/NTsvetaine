@@ -50,7 +50,15 @@
                     </td>
                     <td><a href="/listing/{{$item['id']}}">{{$item['title']}}</a></td>
                     <td>{{$item->getLastestPrice['price']}} €</td>
-                    <th><p style="color: green"> +0%</p></th>
+                    <th>
+                    @if ($item->getLastestPrice['priceChange'] < 0)
+                        <p style="color: red"> {{$item->getLastestPrice['priceChange']}} %</p>
+                    @elseif($item->getLastestPrice['priceChange'] > 0)
+                        <p style="color: green"> +{{$item->getLastestPrice['priceChange']}} %</p>
+                    @else
+                        <p style="color: black"> 0%</p>
+                    @endif
+                    </th>
                     <td>{{$item->getCategory['title']}}</td>
                     <td>{{$item->getType['title']}}</td>
                     <td>
