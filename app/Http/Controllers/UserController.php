@@ -106,21 +106,35 @@ class UserController extends Controller
         return $validator;
     }
 
-    public function markAllMsgAsRead(){
+    public function markAllMessagesRead(){
         $messages = UserMessages::where('user_id', auth()->user()->id)->where('read_msg', 0)->get();
 
         foreach($messages as $msg){
-            $msg->new_msg = 0;
             $msg->read_msg = 1;
             $msg->save();
         }
 
-        $messages = UserMessages::where('user_id', auth()->user()->id)->orderBy('updated_at')->get()->toArray();
+        $messages = UserMessages::where('user_id', auth()->user()->id)->orderBy('updated_at', 'desc')->get()->toArray();
 
         session()->put('messages', $messages);
         session()->put('unreadMsgCnt', 0);
 
         return redirect()->back();
+    }
+
+    public function markMessageRead($messageID){
+        $message = UserMessages::find($messageID);
+        $message->read_msg = 1;
+        $message->save();
+
+        $messages = UserMessages::where('user_id', auth()->user()->id)->orderBy('updated_at', 'desc')->get()->toArray();
+
+        $msgCount = session()->get('unreadMsgCnt') - 1;
+
+        session()->put('messages', $messages);
+        session()->put('unreadMsgCnt', $msgCount);
+
+        return redirect('/notification/'. $message['notification_id']);
     }
 
     public function deleteUser($id){

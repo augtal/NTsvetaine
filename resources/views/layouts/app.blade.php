@@ -65,10 +65,10 @@
                                         @endif
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="float-right" href="/markMsgsRead">Pažymėti visus kaip perskaitytus.</a>
+                                        <a class="float-right" href="/markAllMessagesRead">Pažymėti visus kaip perskaitytus.</a>
 
                                         @foreach (session()->get('messages') as $message)
-                                            <a href="/notification/{{$message['notification_id']}}">
+                                            <a href="/markMessageRead/{{$message['id']}}">
                                                 <div class="dropdown-item">
                                                     @if ($message['read_msg'] != 1)
                                                         <p><strong>{{$message['message']}}</strong></p>
