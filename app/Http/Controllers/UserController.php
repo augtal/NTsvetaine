@@ -130,6 +130,7 @@ class UserController extends Controller
         $messages = UserMessages::where('user_id', auth()->user()->id)->orderBy('updated_at', 'desc')->get()->toArray();
 
         $msgCount = session()->get('unreadMsgCnt') - 1;
+        if($msgCount < 0) $msgCount = 0;
 
         session()->put('messages', $messages);
         session()->put('unreadMsgCnt', $msgCount);
