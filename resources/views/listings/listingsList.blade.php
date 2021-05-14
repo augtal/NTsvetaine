@@ -100,15 +100,8 @@
                     <td>{{$item->getLastestPrice['price']}} €</td>
                     <td>{{$item->getCategory['title']}}</td>
                     <td>{{$item->getType['title']}}</td>
-                    <td>@if ($item['id'] == 26)
-                        <img src="http://www.ntportalas.lt/images/logo.png" style="width: 150px; height:60px">
-                    @elseif ($item['id'] == 25)
-                        <img src="http://www.ntportalas.lt/images/logo.png" style="width: 150px; height:60px">
-                    @elseif ($item['id'] == 81)
-                        <img src="http://www.ntportalas.lt/images/logo.png" style="width: 150px; height:60px">
-                    @else
-                        <img src="{{url('images/RealEstateWebsiteLogos/'.$item->getWebsite['id'].".png")}}" style="width: 150px; height:35px">
-                    @endif
+                    <td>
+                        <img src="{{url('images/RealEstateWebsiteLogos/'.$item->getWebsite['id'].".png")}}" style="width: 150px; height:30px">
                     </td>
                     @auth
                         @if (auth()->user()->isAdmin())

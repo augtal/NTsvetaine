@@ -41,13 +41,21 @@
                 </tr>
                 @foreach ($advertisements as $item)
                 <tr>
-                    <td><a href="{{$item['url']}}"><img src="{{$item['thumbnail']}}" style="width: 250px; height:175px"></td></a>
+                    <td>
+                    @if (file_exists('images/AdvertisementsThumbnails/'.$item['id'].".jpg"))
+                        <a href="{{$item['url']}}"><img src="{{url('images/AdvertisementsThumbnails/'.$item['id'].".jpg")}}" style="width: 250px; height:175px"></a>
+                    @else
+                        <a href="{{$item['url']}}"><img src="{{$item['thumbnail']}}" style="width: 250px; height:175px"></a>
+                    @endif
+                    </td>
                     <td><a href="/listing/{{$item['id']}}">{{$item['title']}}</a></td>
                     <td>{{$item->getLastestPrice['price']}} €</td>
                     <th><p style="color: green"> +0%</p></th>
                     <td>{{$item->getCategory['title']}}</td>
                     <td>{{$item->getType['title']}}</td>
-                    <td><img src="{{$item->getWebsite['logo']}}" style="width: 150px; height:100px"></td>
+                    <td>
+                        <img src="{{url('images/RealEstateWebsiteLogos/'.$item->getWebsite['id'].".png")}}" style="width: 150px; height:30px">
+                    </td>
                 </tr>
                 @endforeach
             </table>
