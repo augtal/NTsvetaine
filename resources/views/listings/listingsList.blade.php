@@ -163,11 +163,6 @@
         src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=drawing,places&region=LTU&language=lt">
     </script>
     <script src="https://unpkg.com/@googlemaps/markerclustererplus/dist/index.min.js"></script>
-    <script type="text/javascript">
-        $(window).on('load', function() {
-            $('#myModal').modal('show');
-        });
-    </script>
     <script>
         function showFilters() {
             var x = document.getElementById("filter-settings");
