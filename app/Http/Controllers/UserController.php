@@ -74,11 +74,11 @@ class UserController extends Controller
                     $user = User::find($userId);
                     $user->password = Hash::make($requestData['new_password']);;
                     $user->save();
-                    return back()->with('message', 'Your password has been updated successfully.');
+                    return redirect()->to('/')->with('success', "Slaptažodis sekmingai pakeistas.");
                 }
                 else
                 {
-                    return back()->withErrors(['Sorry, your current password was not recognised. Please try again.']);
+                    return back()->withError('Dabartinis slaptažodis neteisingas.');
                 }
             }
         }
@@ -92,19 +92,23 @@ class UserController extends Controller
     private function validatePasswords(array $data)
     {
         $messages = [
-            'password.required' => 'Please enter your current password',
-            'new_password.required' => 'Please enter a new password',
-            'new_password_confirmation.not_in' => 'Sorry, common passwords are not allowed. Please try a different new password.'
+            'password.required' => 'Įveskite dabartinį slaptažodi.',
+            'new_password.required' => 'Įveskite naują slaptažodi.',
+            'new_password.min' => 'Naujas slaptažodis turi buti bent 8 simbolių.',
+            'new_password-confirmation.required' => 'Įveskite pakartoti naują slaptažodi.',
+            'new_password-confirmation.same' => 'Naujas slaptažodis ir pakartoti naują slaptažodį nesutampa',
         ];
 
         $validator = Validator::make($data, [
             'password' => 'required',
-            'new_password' => ['required', 'same:new_password', 'min:8'],
-            'new_password_confirmation' => 'required|same:new_password',
+            'new_password' => ['required', 'min:8'],
+            'new_password-confirmation' => ['required', 'same:new_password'],
         ], $messages);
 
         return $validator;
     }
+
+    
 
     public function markAllMessagesRead(){
         $messages = UserMessages::where('user_id', auth()->user()->id)->where('read_msg', 0)->get();

@@ -97,8 +97,4 @@ class NotificationController extends Controller
 
         return null;
     }
-
-    public function createNewMessageForUser($user_id, $notification_id){
-        return;
-    }
 }

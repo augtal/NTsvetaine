@@ -26,38 +26,62 @@
     <div>
         <button id="showFiltersButton" onclick="showFilters()" class="btn btn-success">Filtrai</button>
 
+        
         <div id="filter-settings" style="display: none">
-            <form action="/" method="GET">
-                <label for="min_price">Skelbimo mažiausia kaina: </label>
-                <input type="number" id="min_price" name="filter[min_price]">
-                <br>
+            <section class="border border-light p-3 mb-4">
+                <form action="/" method="GET">
+                    <div>
+                        <label for="min_price">Skelbimo mažiausia kaina: </label>
+                        <input type="number" id="min_price" name="filters[min_price]">
+                    </div>
 
-                <label for="max_price">Skelbimo didžiausia kaina: </label>
-                <input type="number" id="max_price" name="filter[max_price]">
-                <br>
+                    <div>
+                        <label for="max_price">Skelbimo didžiausia kaina: </label>
+                        <input type="number" id="max_price" name="filters[max_price]">
+                    </div>
 
-                <label for="type">Skelbimo tipas: </label>
-                <select id="type" name="filter[type]">
-                    <option value="" selected>-- Pasirinkite tipa --</option>
+                    <div>
+                        <label for="type">Skelbimo tipas: </label>
+                        <select id="type" name="filters[type]">
+                            <option value="" selected>-- Pasirinkite tipa --</option>
 
-                    @foreach ($filterInfo['types'] as $type)
-                    <option value="{{$type['id']}}">{{$type['title']}}</option>
-                    @endforeach
-                </select>
-                <br>
+                            @foreach ($filterInfo['types'] as $type)
+                            <option value="{{$type['id']}}">{{$type['title']}}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <label for="category">Skelbimo kategorija: </label>
-                <select id="category" name="filter[category]">
-                    <option value="" selected>-- Pasirinkite kategorija --</option>
+                    <div>
+                        <label for="category">Skelbimo kategorija: </label>
+                        <select id="category" name="filters[category]">
+                            <option value="" selected>-- Pasirinkite kategorija --</option>
 
-                    @foreach ($filterInfo['categories'] as $category)
-                    <option value="{{$category['id']}}">{{$category['title']}}</option>
-                    @endforeach
-                </select>
-                <br>
+                            @foreach ($filterInfo['categories'] as $category)
+                            <option value="{{$category['id']}}">{{$category['title']}}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <button type="submit" class="btn btn-info">Filtruoti</button>
-            </form>
+                    <div>
+                        <label for="REwebsites">Nekilnojamo turto svetainės: </label>
+                        <select id="REwebsites" name="filters[REwebsites]">
+                            <option value="" selected>-- Pasirinkite svetainę --</option>
+
+                            @foreach ($filterInfo['REwebsites'] as $website)
+                            <option value="{{$website['id']}}">{{$website['title']}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="archived" name="filters[archived]">
+                        <label class="custom-control-label" for="archived">Nerodyti archyvuotu skelbimu:</label>
+                    </div>
+                    
+                    <br>
+                    <button type="submit" class="btn btn-info">Filtruoti</button>
+                </form>
+            </section>
         </div>
     </div>
     <br>    
@@ -97,7 +121,13 @@
                         </td>
                     @endif
                     <td><a href="/listing/{{$item['id']}}">{{$item['title']}}</a></td>
-                    <td>{{$item->getLastestPrice['price']}} €</td>
+                    <td>
+                        @if ($item->getType['id'] == 2)
+                        {{$item->getLastestPrice['price']}} € / mėn.
+                    @else
+                        {{$item->getLastestPrice['price']}} €
+                    @endif
+                    </td>
                     <td>{{$item->getCategory['title']}}</td>
                     <td>{{$item->getType['title']}}</td>
                     <td>
@@ -133,6 +163,11 @@
         src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=drawing,places&region=LTU&language=lt">
     </script>
     <script src="https://unpkg.com/@googlemaps/markerclustererplus/dist/index.min.js"></script>
+    <script type="text/javascript">
+        $(window).on('load', function() {
+            $('#myModal').modal('show');
+        });
+    </script>
     <script>
         function showFilters() {
             var x = document.getElementById("filter-settings");
@@ -197,7 +232,6 @@
                     drawingModes: [
                         google.maps.drawing.OverlayType.POLYGON,
                         google.maps.drawing.OverlayType.CIRCLE,
-                        google.maps.drawing.OverlayType.RECTANGLE,
                     ],
                 },
                 polygonOptions: {
@@ -208,13 +242,6 @@
                     editable: true,
                 },
                 circleOptions: {
-                    fillColor: "#7adcff",
-                    fillOpacity: 0.35,
-                    strokeWeight: 2,
-                    clickable: true,
-                    editable: true,
-                },
-                rectangleOptions: {
                     fillColor: "#7adcff",
                     fillOpacity: 0.35,
                     strokeWeight: 2,

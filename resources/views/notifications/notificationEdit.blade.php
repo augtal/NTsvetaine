@@ -60,7 +60,9 @@
 
                         <div class="form-group row mb-0">
                             <div class="col-md-8 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
+                                <a href="/notifications" class="btn btn-secondary">Atšaukti</a>
+
+                                <button type="submit" class="btn btn-success">
                                     {{ __('Uzsaugoti') }}
                                 </button>
                             </div>

@@ -699,7 +699,9 @@ class WebScrapperController extends Controller
 
     // tester code (depricated)
     public function summonMainMethod(){
-        echo "Test method";
+        
+        /*
+        cho "Test method";
         echo "<br>";
 
         $oldPrice = 32500.00;
@@ -707,7 +709,7 @@ class WebScrapperController extends Controller
         $changeAmount = round((($adsPrice * 100) / $oldPrice) - 100, 1);
 
         echo $changeAmount . "%";
-
+        */
         /*
         $imgURL = 'https://www.capital.lt/image/catalog/capital_logo.png';
         $imgID = 3;

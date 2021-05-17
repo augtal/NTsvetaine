@@ -127,8 +127,11 @@
                 </div>
             </div>
         </nav>
-
         <main class="py-4">
+            <div class="row justify-content-center">
+                @include('layouts/flash')
+            </div>
+
             @yield('content')
         </main>
     </div>

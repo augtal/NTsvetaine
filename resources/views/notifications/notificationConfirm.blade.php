@@ -55,10 +55,11 @@
 
                         <div class="form-group row mb-0">
                             <div class="col-md-8 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
+                                <a href="/" class="btn btn-secondary">Atšaukti</a>
+
+                                <button type="submit" class="btn btn-success">
                                     {{ __('Uzsaugoti') }}
                                 </button>
-                                
                             </div>
                         </div>
                     </form>
@@ -132,7 +133,6 @@
                     drawingModes: [
                         google.maps.drawing.OverlayType.POLYGON,
                         google.maps.drawing.OverlayType.CIRCLE,
-                        google.maps.drawing.OverlayType.RECTANGLE,
                     ],
                 },
                 polygonOptions: {
@@ -143,13 +143,6 @@
                     editable: true,
                 },
                 circleOptions: {
-                    fillColor: "#7adcff",
-                    fillOpacity: 0.35,
-                    strokeWeight: 2,
-                    clickable: true,
-                    editable: true,
-                },
-                rectangleOptions: {
                     fillColor: "#7adcff",
                     fillOpacity: 0.35,
                     strokeWeight: 2,

@@ -8,72 +8,45 @@ use App\Models\Advertisement;
 use App\Models\LikedAdvertisements;
 
 use App\Models\AdvertCategories;
-use App\Models\AdvertisementPrices;
 use App\Models\AdvertTypes;
-
-use App\Models\UserMessages;
-use Carbon\Carbon;
+use App\Models\REWebsites;
 
 class AdvertisementController extends Controller
 {
-
     public function showAdvertisementList(Request $request){
         $filterInfo['types'] = AdvertTypes::get();
         $filterInfo['categories'] = AdvertCategories::get();
+        $filterInfo['REwebsites'] = REWebsites::get();
+
 
         $search = $request->input('search');
+        $filterArray = $request->input('filters');
         $mapData = Advertisement::with('getLocation')->get();
 
-        if($search != null){
-            $search = explode(',', $search)[0];
-
-            $data = Advertisement::query()
-                    ->where('title', 'LIKE', "%{$search}%")
-                    ->orWhere('adress', 'LIKE', "%{$search}%")
-                    ->orderBy('updated_at', 'DESC')->paginate(10);
-            $data->appends(['search' => $search]);
-        }
-        else{
-            $data = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->orderBy('updated_at', 'DESC')->paginate(10);
-        }
-
-        return view('listings.listingsList')->with('filterInfo', $filterInfo)->with('searchTerm', $search)->with('data', $data)->with('mapData', $mapData);
-    }
-
-    public function showAdvertisementList2(Request $request){
-
-        $filterInfo['types'] = AdvertTypes::get();
-        $filterInfo['categories'] = AdvertCategories::get();
-
-        $search = $request->input('search');
-
-        if ($request->session()->has('mapData')) {
-            $mapData = $request->session()->get('mapData');
-        }
-        else{
-            $mapData = Advertisement::with('getLocation')->get();
-            $request->session()->put('mapData', $mapData);
-        }
+        $dataQuery = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->orderBy('updated_at', 'DESC');
 
         if($search != null){
-            $search = explode(',', $search)[0];
+            session()->put('search', $search);
+            $searchParam = explode(',', $search)[0];
+            $searchTerm = substr($searchParam, 0, strlen($searchParam)-2);
 
-            $data = Advertisement::query()
-                    ->where('title', 'LIKE', "%{$search}%")
-                    ->orWhere('adress', 'LIKE', "%{$search}%")
-                    ->paginate(10);
-            $data->appends(['search' => $search]);
-            $request->session()->put('data', $data);
-        }
-
-        if ($request->session()->has('data')) {
-            $data = request()->session()->get('data');
+            $dataQuery = Advertisement::query()
+                    ->where('title', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('adress', 'LIKE', "%{$searchTerm}%")
+                    ->orderBy('updated_at', 'DESC');
         }
         else{
-            $data = Advertisement::with('getLastestPrice', 'getCategory', 'getType', 'getWebsite')->paginate(10);
-            $request->session()->put('data', $data);
+            session()->put('search', $search);
         }
 
+        if($filterArray){
+            $dataQuery = $this->filter($filterArray, $dataQuery);
+        }
+
+        $data = $dataQuery->paginate(10);
+
+        if(strlen(session()->get('search')) > 0) $data->appends(['search' => $search]);
+        
         return view('listings.listingsList')->with('filterInfo', $filterInfo)->with('searchTerm', $search)->with('data', $data)->with('mapData', $mapData);
     }
 
@@ -125,5 +98,38 @@ class AdvertisementController extends Controller
         return redirect()->back();
     }
 
-    
+    private function filter($filterArray, $dataQuery){
+        if($filterArray['min_price'] != null){
+            $dataQuery->whereHas('getLastestPrice', function ($query) use (&$filterArray) {
+                $query->where('price', '>', $filterArray['min_price']);
+            });
+        }
+        if($filterArray['max_price'] != null){
+            $dataQuery->whereHas('getLastestPrice', function ($query) use (&$filterArray) {
+                $query->where('price', '<', $filterArray['max_price']);
+            });
+        }
+        if($filterArray['type'] != null){
+            $dataQuery->whereHas('getType', function ($query) use (&$filterArray) {
+                $query->where('id', $filterArray['type']);
+            });
+        }
+        if($filterArray['category'] != null){
+            $dataQuery->whereHas('getCategory', function ($query) use (&$filterArray) {
+                $query->where('id', $filterArray['category']);
+            });
+        }
+        if($filterArray['REwebsites'] != null){
+            $dataQuery->whereHas('getWebsite', function ($query) use (&$filterArray) {
+                $query->where('id', $filterArray['REwebsites']);
+            });
+        }
+        if(array_key_exists('archived', $filterArray)){
+            $dataQuery->where('archived', 0);
+        }
+
+        $data = $dataQuery->orderBy('updated_at', 'DESC');
+
+        return $data;
+    }
 }
