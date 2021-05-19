@@ -19,6 +19,7 @@ use App\Models\NotificationAdvertisements;
 #nekilnojamo turto svetainiu sarasas
 use App\Models\REWebPages;
 use App\Models\REWebsites;
+use Carbon\Carbon;
 
 class WebScrapperController extends Controller
 {
@@ -32,11 +33,13 @@ class WebScrapperController extends Controller
     private $limiter = 1;
 
     public function index(){
+        
         $REWebsiteList = REWebsites::all();
 
         foreach($REWebsiteList as $website){
             $this->scrape($website);
         }
+        
 
         $notifications = Notification::all();
 
@@ -82,7 +85,7 @@ class WebScrapperController extends Controller
                 echo "Advertisements from: " . $REWebPage['url'];
                 echo "<br>";
                 echo "============================================";
-                //$this->scrapeDomoAll($REWebPage);
+                $this->scrapeDomoAll($REWebPage);
             }
         }
         elseif($website->title == 'NTportalas'){
@@ -692,7 +695,7 @@ class WebScrapperController extends Controller
 
     // tester code (depricated)
     public function summonMainMethod(){
-        
+        $this->generatePrices();
         /*
         cho "Test method";
         echo "<br>";

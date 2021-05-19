@@ -32,18 +32,16 @@ class AdvertisementController extends Controller
 
             $dataQuery = Advertisement::query()
                     ->where('title', 'LIKE', "%{$searchTerm}%")
-                    ->orWhere('adress', 'LIKE', "%{$searchTerm}%")
-                    ->orderBy('updated_at', 'DESC');
+                    ->orWhere('adress', 'LIKE', "%{$searchTerm}%");
         }
         else{
-            session()->put('search', $search);
         }
 
         if($filterArray){
             $dataQuery = $this->filter($filterArray, $dataQuery);
         }
 
-        $data = $dataQuery->paginate(10);
+        $data = $dataQuery->orderBy('updated_at', 'DESC')->orderBy('created_at', 'DESC')->paginate(6);
 
         if(strlen(session()->get('search')) > 0) $data->appends(['search' => $search]);
         
@@ -128,8 +126,6 @@ class AdvertisementController extends Controller
             $dataQuery->where('archived', 0);
         }
 
-        $data = $dataQuery->orderBy('updated_at', 'DESC');
-
-        return $data;
+        return $dataQuery;
     }
 }

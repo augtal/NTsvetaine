@@ -75,7 +75,7 @@
 
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" id="archived" name="filters[archived]">
-                        <label class="custom-control-label" for="archived">Nerodyti archyvuotu skelbimu:</label>
+                        <label class="custom-control-label" for="archived">Nerodyti archyvuotu skelbimu</label>
                     </div>
                     
                     <br>

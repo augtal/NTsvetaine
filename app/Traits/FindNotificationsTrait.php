@@ -48,9 +48,6 @@ trait FindNotificationsTrait {
 
                 foreach($points as $point){
                     if($this->pointInCircle($point, $shape['cords'])){
-                        $inside = $point->advertisement_id;
-                        echo $inside . "<br>";
-
                         $notifiAdvert = NotificationAdvertisements::firstOrNew(
                             ['notification_id' => $notification->id, 
                             'advertisement_id' => $point->advertisement_id],);
