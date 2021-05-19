@@ -32,18 +32,11 @@ class WebScrapperController extends Controller
     private $limiter = 1;
 
     public function index(){
-        //$REWebsiteList = REWebsites::all();
+        $REWebsiteList = REWebsites::all();
 
-        $website = REWebsites::find(2);
-        $websitePages = REWebPages::where('r_e_websites_id', $website->id)->first();
-
-        //$this->scrapeNtportalasAll($websitePages);
-
-        /*
         foreach($REWebsiteList as $website){
             $this->scrape($website);
         }
-        */
 
         $notifications = Notification::all();
 
@@ -89,7 +82,7 @@ class WebScrapperController extends Controller
                 echo "Advertisements from: " . $REWebPage['url'];
                 echo "<br>";
                 echo "============================================";
-                $this->scrapeDomoAll($REWebPage);
+                //$this->scrapeDomoAll($REWebPage);
             }
         }
         elseif($website->title == 'NTportalas'){
@@ -98,7 +91,7 @@ class WebScrapperController extends Controller
                 echo "Advertisements from: " . $REWebPage['url'];
                 echo "<br>";
                 echo "============================================";
-                $this->scrapeNtportalasAll($REWebPage);
+                //$this->scrapeNtportalasAll($REWebPage);
             }
         }
         elseif($website->title == 'Capital'){
@@ -138,7 +131,7 @@ class WebScrapperController extends Controller
                 $l = "";
                 if( strpos($info['url'], 'capital') == TRUE){
                     #patikrinti ar skelbimas is sitos svetaines jau yra
-                    $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->where('r_e_websites_id', 2)->first();
+                    $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->where('r_e_websites_id', 2)->where('url', $info['url'])->first();
                     if($adID != null){
                         #atnaujinti kaina
                         $adID->touch();
@@ -206,7 +199,7 @@ class WebScrapperController extends Controller
         return $adsInfo;
     }
 
-    private function scrapeCapitalSingle2($client, $link){
+    private function scrapeNTportalasSingle2($client, $link){
         $results = Array();
         $crawler = $client->request('GET', $link);
 
@@ -270,7 +263,7 @@ class WebScrapperController extends Controller
                 $l = "";
                 if( strpos($info['url'], 'capital') == TRUE){
                     #patikrinti ar skelbimas is sitos svetaines jau yra
-                    $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->where('r_e_websites_id', 2)->first();
+                    $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->where('r_e_websites_id', 2)->where('url', $info['url'])->first();
                     if($adID != null){
                         #atnaujinti kaina
                         $adID->touch();
@@ -452,7 +445,7 @@ class WebScrapperController extends Controller
                 $l = "";
                 if( strpos($info['url'], 'domoplius') == TRUE){
                     #patikrinti ar skelbimas is sitos svetaines jau yra
-                    $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->where('r_e_websites_id', 1)->first();
+                    $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->where('r_e_websites_id', 1)->where('url', $info['url'])->first();
                     if($adID != null){
                         #atnaujinti kaina
                         $adID->touch();
@@ -662,7 +655,7 @@ class WebScrapperController extends Controller
         $oldPrice = AdvertisementPrices::where('advertisement_id', $id)->orderBy('id', 'desc')->first();
         $oldPrice->touch();
 
-        $changeAmount = round((($adsPrice * 100) / $oldPrice) - 100, 1);
+        $changeAmount = round((($adsPrice * 100) / $oldPrice->price) - 100, 1);
 
         #sets new price
         $newPrice = new AdvertisementPrices();

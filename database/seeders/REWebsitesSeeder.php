@@ -22,5 +22,23 @@ class REWebsitesSeeder extends Seeder
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
+
+        DB::table('r_e_websites')->insert([
+            'title'=>'Capital',
+            'url'=>'https://www.capital.lt/',
+            'logo'=>'https://www.capital.lt/image/catalog/capital_logo.png',
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+
+        /*
+        DB::table('r_e_websites')->insert([
+            'title'=>'NTportalas',
+            'url'=>'http://www.ntportalas.lt/',
+            'logo'=>'http://www.ntportalas.lt/images/logo.png',
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+        */
     }
 }

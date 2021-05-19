@@ -23,5 +23,50 @@ class REWebPagesSeeder extends Seeder
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
+
+        DB::table('r_e_web_pages')->insert([
+            'url'=>'https://domoplius.lt/skelbimai/butai?action_type=3&page_nr=1',
+            'category'=>1,
+            'type'=>2,
+            'r_e_websites_id'=>1,
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+
+        DB::table('r_e_web_pages')->insert([
+            'url'=>'https://domoplius.lt/skelbimai/namai-kotedzai-sodai?action_type=1&page_nr=1',
+            'category'=>2,
+            'type'=>1,
+            'r_e_websites_id'=>1,
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+
+        DB::table('r_e_web_pages')->insert([
+            'url'=>'https://domoplius.lt/skelbimai/namai-kotedzai-sodai?action_type=3&page_nr=1',
+            'category'=>2,
+            'type'=>2,
+            'r_e_websites_id'=>1,
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+
+        DB::table('r_e_web_pages')->insert([
+            'url'=>'https://www.capital.lt/lt/nekilnojamas-turtas/butai-pardavimui?page=1',
+            'category'=>1,
+            'type'=>1,
+            'r_e_websites_id'=>2,
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+
+        DB::table('r_e_web_pages')->insert([
+            'url'=>'https://www.capital.lt/lt/nekilnojamas-turtas/butai-nuomai?page=1',
+            'category'=>1,
+            'type'=>2,
+            'r_e_websites_id'=>2,
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
     }
 }
