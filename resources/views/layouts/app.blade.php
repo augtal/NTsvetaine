@@ -64,8 +64,12 @@
                                             <span class="badge badge-pill badge-danger">{{session()->get('unreadMsgCnt')}}</span>
                                         @endif
                                     </a>
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="float-right" href="/markAllMessagesRead">Pažymėti visus kaip perskaitytus.</a>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown" style="height: auto;max-height: 200px; overflow-x: hidden;">
+                                        <div class="text-right">
+                                            <a href="/markAllMessagesRead">Pažymėti visus kaip perskaitytus. &ensp;</a>
+                                        </div>
+                                        <div class="dropdown-divider">
+                                        </div>
 
                                         @foreach (session()->get('messages') as $message)
                                             <a href="/markMessageRead/{{$message['id']}}">
@@ -105,7 +109,9 @@
                                         </div>
 
                                         <div class="dropdown-item">
-                                            <a href="/scrapper"> Paleisti interneti vora </a>
+                                            <a href="" data-toggle="modal" data-target="#ModalCenter">
+                                                Paleisti interneti vora
+                                            </a>
                                         </div>
                                     @endif
                                 </div>
@@ -127,6 +133,32 @@
                 </div>
             </div>
         </nav>
+
+        <!-- Modal -->
+        <div class="modal fade" id="ModalCenter" tabindex="-1" role="dialog" aria-labelledby="ModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalCenterTitle">Paleisti internetini vora</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div id="modal-body" class="modal-body" style="display:none;">
+                        <div class="d-flex justify-content-center">
+                            <div class="spinner-border" role="status">
+                                <span class="sr-only">Kraunama...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Uždaryti</button>
+                        <a href="/scrapper" class="btn btn-primary" onclick="document.getElementById('modal-body').style.display = 'block';">Paleisti</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <main class="py-4">
             <div class="row justify-content-center">
                 @include('layouts/flash')
