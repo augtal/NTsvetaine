@@ -33,7 +33,10 @@
     @else
         <div>
             <h2>Neturite pranesimu!</h2>
-            <h4><a href="/showSaveNotification">Sukurkite nauja</a></h4>
+            <form id="saveShapes" action="/showSaveNotification" method="post">
+                @csrf
+                <button id="saveShapesButton" type="submit" class="btn btn-primary"><h4>Sukurkite nauja</h4></button>
+            </form>
         </div>
     @endif
 </div>

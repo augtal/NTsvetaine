@@ -52,9 +52,9 @@
                     <td>{{$item->getLastestPrice['price']}} €</td>
                     <th>
                     @if ($item->getLastestPrice['priceChange'] < 0)
-                        <p style="color: red"> {{$item->getLastestPrice['priceChange']}} %</p>
+                        <p style="color: green"> {{$item->getLastestPrice['priceChange']}} %</p>
                     @elseif($item->getLastestPrice['priceChange'] > 0)
-                        <p style="color: green"> +{{$item->getLastestPrice['priceChange']}} %</p>
+                        <p style="color: red"> +{{$item->getLastestPrice['priceChange']}} %</p>
                     @else
                         <p style="color: black"> 0%</p>
                     @endif

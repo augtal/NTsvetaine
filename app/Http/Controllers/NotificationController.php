@@ -34,7 +34,12 @@ class NotificationController extends Controller
     }
 
     public function showNotificationConfirmPage(Request $request){
-        $shapesData = json_decode($request->All()['saveShapesValues'], true);
+        if($request->input('saveShapesValues')){
+            $shapesData = json_decode($request->input('saveShapesValues'), true);
+        }
+        else{
+            $shapesData = array();
+        }
         $mapData = Advertisement::with('getLocation')->get();
 
         return view('notifications.notificationConfirm')->with('mapData', $mapData)->with('shapesData', $shapesData);
@@ -52,7 +57,7 @@ class NotificationController extends Controller
         $notification->advertisement_count = 0;
         $notification->save();
 
-        $amount = $this->findAdsInsideNotification($notification->id);
+        $amount = $this->findAdsInsideNotification($notification);
 
         $notification->advertisement_count = $amount;
         $notification->save();
@@ -85,6 +90,9 @@ class NotificationController extends Controller
 
     public function deleteNotification($id){
         $notification = Notification::where('id', $id)->first();
+
+        NotificationAdvertisements::where('notification_id', $notification->id)->delete();
+
         $notification->delete();
         return redirect()->back();
     }

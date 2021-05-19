@@ -11,6 +11,8 @@ use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Models\LikedAdvertisements;
 use App\Models\Advertisement;
+use App\Models\Notification;
+use App\Models\NotificationAdvertisements;
 use App\Models\UserMessages;
 
 class UserController extends Controller
@@ -144,6 +146,14 @@ class UserController extends Controller
 
     public function deleteUser($id){
         $user = User::find($id);
+
+        $notificationsList = Notification::where('user_id', $user->id)->get();
+        
+        foreach($notificationsList as $notification){
+            NotificationAdvertisements::where('notification_id', $notification->id)->delete();
+            $notification->delete();
+        }
+
         $user->delete();
 
         return redirect()->back();
