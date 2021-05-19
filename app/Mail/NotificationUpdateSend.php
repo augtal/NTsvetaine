@@ -28,6 +28,6 @@ class NotificationUpdateSend extends Mailable
      */
     public function build()
     {
-        return $this->markdown('emails.notification.update');
+        return $this->markdown('email.notification.update');
     }
 }
