@@ -69,10 +69,6 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/markMessageRead/{id}', 'UserController@markMessageRead');
 });
 
-
-Route::get('send-mail', 'MailController@sendMail')->name('send.mail');
-
-
 Route::get('/email/verify', function () {
     return view('auth.verify-email');
 })->middleware('auth')->name('verification.notice');

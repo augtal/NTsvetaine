@@ -18,7 +18,6 @@ class AdvertisementController extends Controller
         $filterInfo['categories'] = AdvertCategories::get();
         $filterInfo['REwebsites'] = REWebsites::get();
 
-
         $search = $request->input('search');
         $filterArray = $request->input('filters');
         $mapData = Advertisement::with('getLocation')->get();
@@ -41,11 +40,12 @@ class AdvertisementController extends Controller
             $dataQuery = $this->filter($filterArray, $dataQuery);
         }
 
-        $data = $dataQuery->orderBy('updated_at', 'DESC')->orderBy('created_at', 'DESC')->paginate(6);
+        $data = $dataQuery->orderBy('updated_at', 'DESC')->orderBy('created_at', 'DESC')->paginate(6)->withQueryString();
 
-        if(strlen(session()->get('search')) > 0) $data->appends(['search' => $search]);
+        if(strlen(session()->get('search')) > 0) 
+            $data->appends(['search' => $search]);
         
-        return view('listings.listingsList')->with('filterInfo', $filterInfo)->with('searchTerm', $search)->with('data', $data)->with('mapData', $mapData);
+        return view('listings.listingsList')->with('filterInfo', $filterInfo)->with('filterData', $filterArray)->with('searchTerm', $search)->with('data', $data)->with('mapData', $mapData);
     }
 
     public function showAdvertisement($id){
@@ -97,27 +97,27 @@ class AdvertisementController extends Controller
     }
 
     private function filter($filterArray, $dataQuery){
-        if($filterArray['min_price'] != null){
+        if(array_key_exists('min_price', $filterArray) && $filterArray['min_price'] != null){
             $dataQuery->whereHas('getLastestPrice', function ($query) use (&$filterArray) {
                 $query->where('price', '>', $filterArray['min_price']);
             });
         }
-        if($filterArray['max_price'] != null){
+        if(array_key_exists('max_price', $filterArray) && $filterArray['max_price'] != null){
             $dataQuery->whereHas('getLastestPrice', function ($query) use (&$filterArray) {
                 $query->where('price', '<', $filterArray['max_price']);
             });
         }
-        if($filterArray['type'] != null){
+        if(array_key_exists('type', $filterArray) && $filterArray['type'] != null){
             $dataQuery->whereHas('getType', function ($query) use (&$filterArray) {
                 $query->where('id', $filterArray['type']);
             });
         }
-        if($filterArray['category'] != null){
+        if(array_key_exists('category', $filterArray) && $filterArray['category'] != null){
             $dataQuery->whereHas('getCategory', function ($query) use (&$filterArray) {
                 $query->where('id', $filterArray['category']);
             });
         }
-        if($filterArray['REwebsites'] != null){
+        if(array_key_exists('REwebsites', $filterArray) && $filterArray['REwebsites'] != null){
             $dataQuery->whereHas('getWebsite', function ($query) use (&$filterArray) {
                 $query->where('id', $filterArray['REwebsites']);
             });

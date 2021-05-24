@@ -28,60 +28,107 @@
 
         
         <div id="filter-settings" style="display: none">
-            <section class="border border-light p-3 mb-4">
-                <form action="/" method="GET">
-                    <div>
-                        <label for="min_price">Skelbimo mažiausia kaina: </label>
+            <form action="/" method="GET">
+                <div>
+                    <label for="min_price">Skelbimo mažiausia kaina: </label>
+                    @if (isset($filterData['min_price']))
+                        <input type="number" id="min_price" name="filters[min_price]" value={{$filterData['min_price']}}>
+                    @else
                         <input type="number" id="min_price" name="filters[min_price]">
-                    </div>
+                    @endif
+                </div>
 
-                    <div>
-                        <label for="max_price">Skelbimo didžiausia kaina: </label>
+                <div>
+                    <label for="max_price">Skelbimo didžiausia kaina: </label>
+                    @if (isset($filterData['max_price']))
+                        <input type="number" id="max_price" name="filters[max_price]" value={{$filterData['max_price']}}>
+                    @else
                         <input type="number" id="max_price" name="filters[max_price]">
-                    </div>
+                    @endif
+                </div>
 
-                    <div>
-                        <label for="type">Skelbimo tipas: </label>
-                        <select id="type" name="filters[type]">
+                <div>
+                    <label for="type">Skelbimo tipas: </label>
+                    <select id="type" name="filters[type]">
+                        @if (isset($filterData['type']))
+                            <option value="">-- Pasirinkite tipa --</option>
+
+                            @foreach ($filterInfo['types'] as $type)
+                                @if ($loop->iteration == $filterData['type'])
+                                    <option value="{{$type['id']}}" selected>{{$type['title']}}</option>
+                                @else
+                                    <option value="{{$type['id']}}">{{$type['title']}}</option>
+                                @endif
+                            @endforeach
+                            
+                        @else
                             <option value="" selected>-- Pasirinkite tipa --</option>
 
                             @foreach ($filterInfo['types'] as $type)
                             <option value="{{$type['id']}}">{{$type['title']}}</option>
                             @endforeach
-                        </select>
-                    </div>
+                        @endif
+                    </select>
+                </div>
 
-                    <div>
-                        <label for="category">Skelbimo kategorija: </label>
-                        <select id="category" name="filters[category]">
+                <div>
+                    <label for="category">Skelbimo kategorija: </label>
+                    <select id="category" name="filters[category]">
+                        @if (isset($filterData['category']))
+                            <option value="">-- Pasirinkite kategorija --</option>
+
+                            @foreach ($filterInfo['categories'] as $category)
+                                @if ($loop->iteration == $filterData['category'])
+                                    <option value="{{$category['id']}}" selected>{{$category['title']}}</option>
+                                @else
+                                    <option value="{{$category['id']}}">{{$category['title']}}</option>
+                                @endif
+                            @endforeach
+                        @else
                             <option value="" selected>-- Pasirinkite kategorija --</option>
 
                             @foreach ($filterInfo['categories'] as $category)
-                            <option value="{{$category['id']}}">{{$category['title']}}</option>
+                                <option value="{{$category['id']}}">{{$category['title']}}</option>
                             @endforeach
-                        </select>
-                    </div>
+                        @endif
+                    </select>
+                </div>
 
-                    <div>
-                        <label for="REwebsites">Nekilnojamo turto svetainės: </label>
-                        <select id="REwebsites" name="filters[REwebsites]">
+                <div>
+                    <label for="REwebsites">Nekilnojamo turto svetainės: </label>
+                    <select id="REwebsites" name="filters[REwebsites]">
+                        @if (isset($filterData['REwebsites']))
+                            <option value="">-- Pasirinkite svetainę --</option>
+
+                            @foreach ($filterInfo['REwebsites'] as $website)
+                                @if ($loop->iteration == $filterData['REwebsites'])
+                                    <option value="{{$website['id']}}" selected>{{$website['title']}}</option>
+                                @else
+                                    <option value="{{$website['id']}}">{{$website['title']}}</option>
+                                @endif
+                            @endforeach
+                        @else
                             <option value="" selected>-- Pasirinkite svetainę --</option>
 
                             @foreach ($filterInfo['REwebsites'] as $website)
                             <option value="{{$website['id']}}">{{$website['title']}}</option>
                             @endforeach
-                        </select>
-                    </div>
+                        @endif
+                    </select>
+                </div>
 
-                    <div class="custom-control custom-switch">
+                <div class="custom-control custom-switch">
+                    @if (isset($filterData['archived']))
+                        <input type="checkbox" class="custom-control-input" id="archived" name="filters[archived]" checked>
+                    @else
                         <input type="checkbox" class="custom-control-input" id="archived" name="filters[archived]">
-                        <label class="custom-control-label" for="archived">Nerodyti archyvuotu skelbimu</label>
-                    </div>
-                    
-                    <br>
-                    <button type="submit" class="btn btn-info">Filtruoti</button>
-                </form>
-            </section>
+                    @endif
+                    <label class="custom-control-label" for="archived">Nerodyti archyvuotu skelbimu</label>
+                </div>
+                
+                <br>
+                <button type="submit" class="btn btn-info">Filtruoti</button>
+            </form>
         </div>
     </div>
     <br>    

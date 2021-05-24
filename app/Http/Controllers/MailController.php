@@ -10,7 +10,7 @@ class MailController extends Controller
 {
     public function sendMail()
     {    
-            Mail::to('john.doe@gmail.com')->send(new NotificationUpdateSend());
+        //Mail::to('john.doe@gmail.com')->send(new NotificationUpdateSend());
 
         return redirect()->to('/');
     }

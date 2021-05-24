@@ -695,7 +695,9 @@ class WebScrapperController extends Controller
 
     // tester code (depricated)
     public function summonMainMethod(){
-        $this->generatePrices();
+        $notifications = Notification::first();
+        $messageAddon = "Pasikeite skelbimo kaina.";
+        $this->createNewMessage($notifications, $messageAddon);
         /*
         cho "Test method";
         echo "<br>";
@@ -712,6 +714,7 @@ class WebScrapperController extends Controller
         $this->downloadWebsiteLogo($imgURL, $imgID);
         return;
         */
+        echo "finished test function";
     }
 
     private function downloadWebsiteLogo($url, $id) {
