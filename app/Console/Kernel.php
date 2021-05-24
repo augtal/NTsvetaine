@@ -13,7 +13,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        Commands\ScrapperCommand::class,
+        Commands\EmailSendCommand::class,
     ];
 
     /**
@@ -24,7 +25,19 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('scrapper:start')->dailyAt('02:00');
+
+        $schedule->command('email:notificationUpdateSend')->dailyAt('11:00');
+    }
+
+    /**
+     * Get the timezone that should be used by default for scheduled events.
+     *
+     * @return \DateTimeZone|string|null
+     */
+    protected function scheduleTimezone()
+    {
+        return 'Europe/Vilnius';
     }
 
     /**

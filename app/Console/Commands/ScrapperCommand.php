@@ -68,6 +68,10 @@ class ScrapperCommand extends Command
      */
     public function handle()
     {
+        $this->info("Scheduled command run");
+        return 0;
+
+
         print "======= Web scrapper started =======\n";
         $REWebsiteList = REWebsites::all();
 
@@ -199,7 +203,7 @@ class ScrapperCommand extends Command
                 $action = "";
                 if( strpos($info['url'], $title) == TRUE){
                     #patikrinti ar skelbimas is sitos svetaines jau yra
-                    $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->where('r_e_websites_id', 2)->where('url', $info['url'])->first();
+                    $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->where('r_e_websites_id', $website->id)->where('url', $info['url'])->first();
                     if($adID != null){
                         #atnaujinti kaina
                         $adID->touch();

@@ -10,8 +10,11 @@ use App\Models\AdvertisementPrices;
 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NotificationUpdateSend;
+use App\Traits\FindNotificationsTrait;
 
 trait CreateUserMessageTrait {
+    use FindNotificationsTrait;
+
     public function sendNotifications(){
         $notifications = Notification::all();
 
@@ -24,7 +27,7 @@ trait CreateUserMessageTrait {
                     $this->createNewMessage($notification, $messageAddon);
 
                     $notification->advertisement_count = $amount;
-                    $notification->save();
+                    //$notification->save();
                 }
             }
             //2 Kada pasikeicia skelbimu zonoje kaina
