@@ -311,6 +311,42 @@ class WebScrapperController extends Controller
         return $fixed;
     }
 
+    private function getCapitalPageAdsInfo($crawler){
+        $adsInfo = Array();
+
+        $crawler->filter('div.realty-box > div.realty-items-container.col-md-9 > div.realty-items')->children()->each(function ($node) use (&$adsInfo){
+            $info = Array();
+
+            $titleCity = $node->filter('div.realty-item-description > div.rid-place')->text('empty');
+
+            if($titleCity != 'empty'){
+                $description = explode(",", $node->filter('div.realty-item-description > div.rid-additional')->text());
+                $info['title'] = $description[0] . " " . $titleCity;
+
+                $info['url'] = $node->filter('a')->link()->getUri();
+                
+                $info['area'] = (double)substr($description[1], 0, -3);
+
+                $price = $node->filter('div.realty-item-price > strong')->text();
+                $price = substr($price, 0, -4); # to remove € with a space before 
+                $price = str_replace(',', '', $price);
+                $info['price'] = (int)$price;
+                if($node->filter('div.realty-item-image')->count()){
+                    $imgURL = $node->filter('div.realty-item-image')->attr('style');
+                    $imgURL = explode("'", $imgURL);
+
+                    $info['imgUrl'] = $imgURL[count($imgURL)-2];
+                }
+                else{
+                    $info['imgUrl'] = "";
+                }
+
+                array_push($adsInfo, $info);
+            }
+        });
+        return $adsInfo;
+    }
+
     private function scrapeCapitalSingle($client, $link){
         $results = Array();
         $crawler = $client->request('GET', $link);
