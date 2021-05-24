@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Traits\FindNotificationsTrait;
 use App\Traits\CreateUserMessageTrait;
 
-use Illuminate\Http\Request;
 use Goutte\Client;
 
 #lenteles i kurias bus saugojama info
@@ -14,12 +12,10 @@ use App\Models\Advertisement;
 use App\Models\AdvertisementLocation;
 use App\Models\AdvertisementDetails;
 use App\Models\AdvertisementPrices;
-use App\Models\Notification;
-use App\Models\NotificationAdvertisements;
+
 #nekilnojamo turto svetainiu sarasas
 use App\Models\REWebPages;
 use App\Models\REWebsites;
-use Carbon\Carbon;
 
 class WebScrapperController extends Controller
 {
@@ -33,50 +29,20 @@ class WebScrapperController extends Controller
     private $limiter = 1;
 
     public function index(){
-        
         $REWebsiteList = REWebsites::all();
 
         foreach($REWebsiteList as $website){
             $this->scrape($website);
         }
-        
 
-        $notifications = Notification::all();
+        $this->sendNotifications();
 
-        foreach($notifications as $notification){
-            //1 Kai atsiranda naujas skelbimas zonoje
-            if($notification->frequency == 1){
-                $amount = $this->findAdsInsideNotification($notification);
-                if($notification->advertisement_count < $amount){
-                    $messageAddon = "Atsirano naujas skelbimas.";
-                    $this->createNewMessage($notification, $messageAddon);
-
-                    $notification->advertisement_count = $amount;
-                    $notification->save();
-                }
-            }
-            //2 Kada pasikeicia skelbimu zonoje kaina
-            elseif($notification->frequency == 2){
-                $advertisementList = NotificationAdvertisements::where('notification_id', $notification->id)->get();
-
-                foreach($advertisementList as $singleAdvertisement){
-                    $id = $singleAdvertisement->advertisement_id;
-                    $prices = AdvertisementPrices::where('advertisement_id', $singleAdvertisement->advertisement_id)->orderBy('updated_at', 'desc')->orderBy('created_at', 'desc')->take(2)->get()->toArray();
-
-                    if($prices[0]['price'] != $prices[1]['price']){
-                        $messageAddon = "Pasikeite skelbimo kaina.";
-                        $this->createNewMessage($notification, $messageAddon);
-                        break;
-                    }
-                }
-            }
-        }
-
-        echo "End of scraping";
+        echo "<br>" . "<br>" . "End of scraping";
     }
 
     private function scrape($website){
         $websitePages = REWebPages::where('r_e_websites_id', $website->id)->get();
+
         echo "Start scraping:" . "<br>";
         //domoplius svetaine
         if($website->title == 'Domoplius'){
@@ -84,17 +50,8 @@ class WebScrapperController extends Controller
                 echo "<br>";
                 echo "Advertisements from: " . $REWebPage['url'];
                 echo "<br>";
-                echo "============================================";
-                $this->scrapeDomoAll($REWebPage);
-            }
-        }
-        elseif($website->title == 'NTportalas'){
-            foreach($websitePages as $REWebPage){
-                echo "<br>";
-                echo "Advertisements from: " . $REWebPage['url'];
-                echo "<br>";
-                echo "============================================";
-                //$this->scrapeNtportalasAll($REWebPage);
+                echo "============================================" . "<br>";
+                $this->scrapeREWebsite($REWebPage, $website);
             }
         }
         elseif($website->title == 'Capital'){
@@ -102,37 +59,78 @@ class WebScrapperController extends Controller
                 echo "<br>";
                 echo "Advertisements from: " . $REWebPage['url'];
                 echo "<br>";
-                echo "============================================";
-                $this->scrapeCapitalAll($REWebPage);
+                echo "============================================" . "<br>";
+                $this->scrapeREWebsite($REWebPage, $website);
             }
         }
     }
 
-    private function scrapeNtportalasAll($REWebPage){
+    private function scrapeREWebsite($REWebPage, $website){
         $client = new Client();
         $crawler = $client->request('GET', $REWebPage['url']);
+        $title = strtolower($website->title);
 
-        $adAmount = (int)$crawler->filter('div#center > div:nth-child(3) > div > b > span')->text();
-
-        $a=0;
-
-        if($adAmount % $this->NTportalasAdsPerPage > 0) $pages = (int)($adAmount / $this->NTportalasAdsPerPage + 1);
-        else $pages = $adAmount / $this->NTportalasAdsPerPage;
+        try {
+            switch ($title){
+                case 'domoplius':
+                    $adAmount = (int)substr($crawler->filter('div.cntnt-box-fixed > div.listing-title > span')->text(), 1, -1);
+    
+                    if($adAmount % $this->DomoAdsPerPage > 0) 
+                        $pages = (int)($adAmount / $this->DomoAdsPerPage + 1);
+                    else 
+                        $pages = $adAmount / $this->DomoAdsPerPage;
+                    break;
+                case 'capital':
+                    $adAmountText = explode("(", $crawler->filter('div.realty-items-container.col-md-9 > div.realty-items-top > div.left-side > div.serch-results > strong')->text());
+                    $adAmountText = $adAmountText[count($adAmountText)-1];
+                    $adAmount = (int)substr($adAmountText, 0, strlen($adAmountText)-1);
+    
+                    if($adAmount % $this->CapitalAdsPerPage > 0) 
+                        $pages = (int)($adAmount / $this->CapitalAdsPerPage + 1);
+                    else 
+                        $pages = $adAmount / $this->CapitalAdsPerPage;
+                    break;
+            }
+        } 
+        catch (\InvalidArgumentException $e) {
+            $trace = $e->getTrace()[1];
+            echo "Error in method:" . $trace['function'] . " on line: " . $trace['line'] . "<br>";
+            echo "Error URL: ". $REWebPage['url'] . "<br>";
+            echo "Error message: " . $e->getMessage() . "<br>";
+        }
 
         #------------------------------------------------------------------------------------------------------------------------------------------------
         #remove limiter
         if($this->limiter != 0) $pages = $this->limiter;
         #------------------------------------------------------------------------------------------------------------------------------------------------
         
+        $number=0;
         for ($i = 1; $i <= $pages; $i++) {
+            //$REWebPage['url'] turi baigtis ?page=X
             $url = substr($REWebPage['url'], 0, -1) . $i;
             $crawler = $client->request('GET', $url);
 
-            $adsInfo = $this->getNtportalasPageAdsInfo($crawler);
+            $adsInfo = Array();
+            try{
+                switch ($title){
+                    case 'domoplius':
+                        $adsInfo = $this->getDomoPageAdsInfo($crawler);
+                        break;
+                    case 'capital':
+                        $adsInfo = $this->getCapitalPageAdsInfo($crawler);
+                        break;
+                }
+            } 
+            catch (\InvalidArgumentException $e) {
+                $trace = $e->getTrace()[1];
+                echo "Error in method:" . $trace['function'] . " on line: " . $trace['line'] . "<br>";
+                echo "Error URL: ". $REWebPage['url'] . "<br>";
+                echo "Error message: " . $e->getMessage() . "<br>";
+            }
 
             foreach($adsInfo as $info){
-                $l = "";
-                if( strpos($info['url'], 'capital') == TRUE){
+                $action = "";
+                if( strpos($info['url'], $title) == TRUE){
                     #patikrinti ar skelbimas is sitos svetaines jau yra
                     $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->where('r_e_websites_id', 2)->where('url', $info['url'])->first();
                     if($adID != null){
@@ -140,339 +138,46 @@ class WebScrapperController extends Controller
                         $adID->touch();
                         AdvertisementDetails::where('advertisement_id', $adID->id)->first()->touch();
                         $this->updateAdvertisementPrices($info['price'], $adID->id);
-                        $l = "U |";
+                        $action = "U |";
                     }
                     else{
                         #sukurti nauja
-                        $result = $this->scrapeCapitalSingle($client, $info['url']);
-                        $detailedInfo = $this->fixResultsCapital($result);
+                        $result = Array();
+                        $detailedInfo = Array();
+
+                        try{
+                            switch ($title){
+                                case 'domoplius':
+                                    $result = $this->scrapeDomoSingle($client, $info['url']);
+                                    $detailedInfo = $this->fixResultsDomo($result);
+                                    break;
+                                case 'capital':
+                                    $result = $this->scrapeCapitalSingle($client, $info['url']);
+                                    $detailedInfo = $this->fixResultsCapital($result);
+                                    break;
+                            }
+                        } 
+                        catch (\InvalidArgumentException $e) {
+                            $trace = $e->getTrace()[1];
+                            echo "Error in method:" . $trace['function'] . " on line: " . $trace['line'] . "<br>";
+                            echo "Error URL: ". $REWebPage['url'] . "<br>";
+                            echo "Error message: " . $e->getMessage() . "<br>";
+                        }
 
                         $advertisement = $this->insertToAdvertisement($REWebPage, $info, $detailedInfo);
                         $this->downloadAdvertisementThumbnail($advertisement);
                         $this->insertToAdvertisementLocation($detailedInfo, $advertisement->id);
                         $this->insertToAdvertisementDetails($detailedInfo, $advertisement->id);
                         $this->insertToAdvertisementPrices($info, $advertisement->id);
-                        $l = "C |";
+                        $action = "C |";
                     }
                     
                 }
-                $a += 1;
-                echo $l . " finished " . $a . '<br>';
+                $number += 1;
+                echo $action . " finished " . $number . '<br>';
             }
         }
-
         return;
-    }
-
-    private function getNtportalasPageAdsInfo($crawler){
-        $adsInfo = Array();
-
-        $crawler->filter('div#center')->children()->each(function ($node) use (&$adsInfo){
-            $info = Array();
-
-            $titleCity = $node->filter('div.center-box-cont > div.local')->text('empty');
-
-            dd('halted');
-
-            if($titleCity != 'empty'){
-                $description = explode(",", $node->filter('div.realty-item-description > div.rid-additional')->text());
-                $info['title'] = $description[0] . " " . $titleCity;
-
-                $info['url'] = $node->filter('a')->link()->getUri();
-                
-                $info['area'] = (double)substr($description[1], 0, -3);
-
-                $price = $node->filter('div.realty-item-price > strong')->text();
-                $price = substr($price, 0, -4); # to remove € with a space before 
-                $price = str_replace(',', '', $price);
-                $info['price'] = (int)$price;
-                if($node->filter('div.realty-item-image')->count()){
-                    $imgURL = $node->filter('div.realty-item-image')->attr('style');
-                    $imgURL = explode("'", $imgURL);
-
-                    $info['imgUrl'] = $imgURL[count($imgURL)-2];
-                }
-                else{
-                    $info['imgUrl'] = "";
-                }
-
-                array_push($adsInfo, $info);
-            }
-        });
-        return $adsInfo;
-    }
-
-    private function scrapeNTportalasSingle2($client, $link){
-        $results = Array();
-        $crawler = $client->request('GET', $link);
-
-        #visa skelbimo info ==========
-        $info = array();
-        $crawler->filter('table.realty-main-info > tbody > tr.realty-main-info-top')->siblings()->each(function ($item) use (&$info) {
-            $info[$item->filter('td:nth-child(1)')->text()] = $item->filter('td:nth-child(2)')->text();
-        });
-
-        $results = $info;
-
-
-        #aprasymas ==============
-        if($crawler->filter('div.realty-information-container.col-md-6 > div.realty-description')->count()){
-            $description = explode('<a', $crawler->filter('div.realty-information-container.col-md-6 > div.realty-description')->html())[0];#issaugomas su <br>
-        }
-        else{
-            $description = "";
-        }
-        $results['description'] = $description;
-
-        #lng/lat
-        $locationURL = $crawler->filter('div.realty-image.realty-image-map.popup-open > div#location-popup.popup-data > div.realty-iframe-buttons > a')->link()->getUri();
-        if (preg_match_all("/\d{1,3}\.\d{1,6}/", $locationURL, $values)){
-            $results['lat'] = (double)$values[0][0];
-            $results['lng'] = (double)$values[0][1];
-        }
-        else{
-        }
-        
-
-        return $results;
-    }
-
-
-    private function scrapeCapitalAll($REWebPage){
-        $client = new Client();
-        $crawler = $client->request('GET', $REWebPage['url']);
-
-        $adAmountText = explode("(", $crawler->filter('div.realty-items-container.col-md-9 > div.realty-items-top > div.left-side > div.serch-results > strong')->text());
-        $adAmountText = $adAmountText[count($adAmountText)-1];
-        $adAmount = (int)substr($adAmountText, 0, strlen($adAmountText)-1);
-
-        $a=0;
-
-        if($adAmount % $this->CapitalAdsPerPage > 0) $pages = (int)($adAmount / $this->CapitalAdsPerPage + 1);
-        else $pages = $adAmount / $this->CapitalAdsPerPage;
-
-        #------------------------------------------------------------------------------------------------------------------------------------------------
-        #remove limiter
-        if($this->limiter != 0) $pages = $this->limiter;
-        #------------------------------------------------------------------------------------------------------------------------------------------------
-        
-        for ($i = 1; $i <= $pages; $i++) {
-            $url = substr($REWebPage['url'], 0, -1) . $i;
-            $crawler = $client->request('GET', $url);
-
-            $adsInfo = $this->getCapitalPageAdsInfo($crawler);
-
-            foreach($adsInfo as $info){
-                $l = "";
-                if( strpos($info['url'], 'capital') == TRUE){
-                    #patikrinti ar skelbimas is sitos svetaines jau yra
-                    $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->where('r_e_websites_id', 2)->where('url', $info['url'])->first();
-                    if($adID != null){
-                        #atnaujinti kaina
-                        $adID->touch();
-                        AdvertisementDetails::where('advertisement_id', $adID->id)->first()->touch();
-                        $this->updateAdvertisementPrices($info['price'], $adID->id);
-                        $l = "U |";
-                    }
-                    else{
-                        #sukurti nauja
-                        $result = $this->scrapeCapitalSingle($client, $info['url']);
-                        $detailedInfo = $this->fixResultsCapital($result);
-
-                        $advertisement = $this->insertToAdvertisement($REWebPage, $info, $detailedInfo);
-                        $this->downloadAdvertisementThumbnail($advertisement);
-                        $this->insertToAdvertisementLocation($detailedInfo, $advertisement->id);
-                        $this->insertToAdvertisementDetails($detailedInfo, $advertisement->id);
-                        $this->insertToAdvertisementPrices($info, $advertisement->id);
-                        $l = "C |";
-                    }
-                    
-                }
-                $a += 1;
-                echo $l . " finished " . $a . '<br>';
-            }
-        }
-
-        return;
-    }
-
-    private function getCapitalPageAdsInfo($crawler){
-        $adsInfo = Array();
-
-        $crawler->filter('div.realty-box > div.realty-items-container.col-md-9 > div.realty-items')->children()->each(function ($node) use (&$adsInfo){
-            $info = Array();
-
-            $titleCity = $node->filter('div.realty-item-description > div.rid-place')->text('empty');
-
-            if($titleCity != 'empty'){
-                $description = explode(",", $node->filter('div.realty-item-description > div.rid-additional')->text());
-                $info['title'] = $description[0] . " " . $titleCity;
-
-                $info['url'] = $node->filter('a')->link()->getUri();
-                
-                $info['area'] = (double)substr($description[1], 0, -3);
-
-                $price = $node->filter('div.realty-item-price > strong')->text();
-                $price = substr($price, 0, -4); # to remove € with a space before 
-                $price = str_replace(',', '', $price);
-                $info['price'] = (int)$price;
-                if($node->filter('div.realty-item-image')->count()){
-                    $imgURL = $node->filter('div.realty-item-image')->attr('style');
-                    $imgURL = explode("'", $imgURL);
-
-                    $info['imgUrl'] = $imgURL[count($imgURL)-2];
-                }
-                else{
-                    $info['imgUrl'] = "";
-                }
-
-                array_push($adsInfo, $info);
-            }
-        });
-        return $adsInfo;
-    }
-
-    private function scrapeCapitalSingle($client, $link){
-        $results = Array();
-        $crawler = $client->request('GET', $link);
-
-        #visa skelbimo info ==========
-        $info = array();
-        $crawler->filter('table.realty-main-info > tbody > tr.realty-main-info-top')->siblings()->each(function ($item) use (&$info) {
-            $info[$item->filter('td:nth-child(1)')->text()] = $item->filter('td:nth-child(2)')->text();
-        });
-
-        $results = $info;
-
-
-        #aprasymas ==============
-        if($crawler->filter('div.realty-information-container.col-md-6 > div.realty-description')->count()){
-            $description = explode('<a', $crawler->filter('div.realty-information-container.col-md-6 > div.realty-description')->html())[0];#issaugomas su <br>
-        }
-        else{
-            $description = "";
-        }
-        $results['description'] = $description;
-
-        #lng/lat
-        $locationURL = $crawler->filter('div.realty-image.realty-image-map.popup-open > div#location-popup.popup-data > div.realty-iframe-buttons > a')->link()->getUri();
-        if (preg_match_all("/\d{1,3}\.\d{1,6}/", $locationURL, $values)){
-            $results['lat'] = (double)$values[0][0];
-            $results['lng'] = (double)$values[0][1];
-        }
-        else{
-        }
-        
-
-        return $results;
-    } 
-
-    private function fixResultsCapital($oldResults){
-        $fixed = Array();
-
-        if(array_key_exists('Adresas', $oldResults)) 
-            $fixed['adress'] = $oldResults['Adresas'];
-        else 
-            $fixed['adress'] = "Nera";
-
-        if(array_key_exists('Kambariai', $oldResults)) 
-            $fixed['rooms'] = $oldResults['Kambariai'];
-        else 
-            $fixed['rooms'] = "Nera";
-
-        if(array_key_exists('Aukštas', $oldResults)){
-            $floorsArray = explode('/', $oldResults['Aukštas']);
-            $fixedFloor = $floorsArray[0] . ', ' . $floorsArray[1] . " aukštų pastate";
-            $fixed['floor'] = $fixedFloor;
-        }
-        else 
-            $fixed['floor'] = "Nera";
-
-        if(array_key_exists('Statinio tipas', $oldResults)) 
-            $fixed['buildingType'] = $oldResults['Statinio tipas'];
-        else 
-            $fixed['buildingType'] = "Nera";
-
-        if(array_key_exists('Šildymas', $oldResults)) 
-            $fixed['heating'] = $oldResults['Šildymas'];
-        else 
-            $fixed['heating'] = "Nera";
-
-        if(array_key_exists('Statybos metai', $oldResults)) 
-            $fixed['year'] = $oldResults['Statybos metai'];
-        else 
-            $fixed['year'] = "Nera";
-
-        if(array_key_exists('description', $oldResults)) 
-            $fixed['description'] = $oldResults['description'];
-        else 
-            $fixed['description'] = "Nera";
-
-        if(array_key_exists('lng', $oldResults)) 
-            $fixed['lng'] = $oldResults['lng'];
-        else 
-            $fixed['lng'] = 0.0;
-
-        if(array_key_exists('lat', $oldResults)) 
-            $fixed['lat'] = $oldResults['lat'];
-        else 
-            $fixed['lat'] = 0.0;
-
-        return $fixed;
-    }
-
-    private function scrapeDomoAll($REWebPage){
-        $client = new Client();
-
-        $crawler = $client->request('GET', $REWebPage['url']);
-
-        $adAmount = (int)substr($crawler->filter('div.cntnt-box-fixed > div.listing-title > span')->text(), 1, -1);
-        
-        $a=0;
-
-        if($adAmount % $this->DomoAdsPerPage > 0) $pages = (int)($adAmount / $this->DomoAdsPerPage + 1);
-        else $pages = $adAmount / $this->DomoAdsPerPage;
-
-        #------------------------------------------------------------------------------------------------------------------------------------------------
-        #remove limiter
-        $pages = 1;
-        #------------------------------------------------------------------------------------------------------------------------------------------------
-        
-        for ($i = 1; $i <= $pages; $i++) {
-            $url = substr($REWebPage['url'], 0, -1) . $i;
-            $crawler = $client->request('GET', $url);
-
-            $adsInfo = $this->getDomoPageAdsInfo($crawler);
-
-            foreach($adsInfo as $info){
-                $l = "";
-                if( strpos($info['url'], 'domoplius') == TRUE){
-                    #patikrinti ar skelbimas is sitos svetaines jau yra
-                    $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->where('r_e_websites_id', 1)->where('url', $info['url'])->first();
-                    if($adID != null){
-                        #atnaujinti kaina
-                        $adID->touch();
-                        AdvertisementDetails::where('advertisement_id', $adID->id)->first()->touch();
-                        $this->updateAdvertisementPrices($info['price'], $adID->id);
-                        $l = "U |";
-                    }
-                    else{
-                        #sukurti nauja
-                        $result = $this->scrapeDomoSingle($client, $info['url']);
-                        $detailedInfo = $this->fixResultsDomo($result);
-                        $advertisement = $this->insertToAdvertisement($REWebPage, $info, $detailedInfo);
-                        $this->downloadAdvertisementThumbnail($advertisement);
-                        $this->insertToAdvertisementLocation($detailedInfo, $advertisement->id);
-                        $this->insertToAdvertisementDetails($detailedInfo, $advertisement->id);
-                        $this->insertToAdvertisementPrices($info, $advertisement->id);
-                        $l = "C |";
-                    }
-                    
-                }
-                $a += 1;
-                echo $l . " finished " . $a . '<br>';
-            }
-        }
     }
 
     private function getDomoPageAdsInfo($crawler){
@@ -606,6 +311,110 @@ class WebScrapperController extends Controller
         return $fixed;
     }
 
+    private function scrapeCapitalSingle($client, $link){
+        $results = Array();
+        $crawler = $client->request('GET', $link);
+
+        #visa skelbimo info ==========
+        $info = array();
+        $crawler->filter('table.realty-main-info > tbody > tr.realty-main-info-top')->siblings()->each(function ($item) use (&$info) {
+            $info[$item->filter('td:nth-child(1)')->text()] = $item->filter('td:nth-child(2)')->text();
+        });
+
+        $results = $info;
+
+
+        #aprasymas ==============
+        if($crawler->filter('div.realty-information-container.col-md-6 > div.realty-description')->count()){
+            $description = explode('<a', $crawler->filter('div.realty-information-container.col-md-6 > div.realty-description')->html())[0];#issaugomas su <br>
+        }
+        else{
+            $description = "";
+        }
+        $results['description'] = $description;
+
+        #lng/lat
+        $locationURL = $crawler->filter('div.realty-image.realty-image-map.popup-open > div#location-popup.popup-data > div.realty-iframe-buttons > a')->link()->getUri();
+        if (preg_match_all("/\d{1,3}\.\d{1,6}/", $locationURL, $values)){
+            $results['lat'] = (double)$values[0][0];
+            $results['lng'] = (double)$values[0][1];
+        }
+        else{
+        }
+        
+
+        return $results;
+    } 
+
+    private function fixResultsCapital($oldResults){
+        $fixed = Array();
+
+        if(array_key_exists('Adresas', $oldResults)) 
+            $fixed['adress'] = $oldResults['Adresas'];
+        else 
+            $fixed['adress'] = "Nera";
+
+        if(array_key_exists('Kambariai', $oldResults)) 
+            $fixed['rooms'] = $oldResults['Kambariai'];
+        else 
+            $fixed['rooms'] = "Nera";
+
+        if(array_key_exists('Aukštas', $oldResults)){
+            $floorsArray = explode('/', $oldResults['Aukštas']);
+            $fixedFloor = $floorsArray[0] . ', ' . $floorsArray[1] . " aukštų pastate";
+            $fixed['floor'] = $fixedFloor;
+        }
+        else 
+            $fixed['floor'] = "Nera";
+
+        if(array_key_exists('Statinio tipas', $oldResults)) 
+            $fixed['buildingType'] = $oldResults['Statinio tipas'];
+        else 
+            $fixed['buildingType'] = "Nera";
+
+        if(array_key_exists('Šildymas', $oldResults)) 
+            $fixed['heating'] = $oldResults['Šildymas'];
+        else 
+            $fixed['heating'] = "Nera";
+
+        if(array_key_exists('Statybos metai', $oldResults)) 
+            $fixed['year'] = $oldResults['Statybos metai'];
+        else 
+            $fixed['year'] = "Nera";
+
+        if(array_key_exists('description', $oldResults)) 
+            $fixed['description'] = $oldResults['description'];
+        else 
+            $fixed['description'] = "Nera";
+
+        if(array_key_exists('lng', $oldResults)) 
+            $fixed['lng'] = $oldResults['lng'];
+        else 
+            $fixed['lng'] = 0.0;
+
+        if(array_key_exists('lat', $oldResults)) 
+            $fixed['lat'] = $oldResults['lat'];
+        else 
+            $fixed['lat'] = 0.0;
+
+        return $fixed;
+    }
+
+    private function updateAdvertisementPrices($adsPrice, $id){
+        #atnaujinti sena kainu lauka
+        $oldPrice = AdvertisementPrices::where('advertisement_id', $id)->orderBy('id', 'desc')->first();
+        $oldPrice->touch();
+
+        $changeAmount = round((($adsPrice * 100) / $oldPrice->price) - 100, 1);
+
+        #iterpti nauja kainos irasa
+        $newPrice = new AdvertisementPrices();
+        $newPrice->advertisement_id = $id;
+        $newPrice->price = $adsPrice;
+        $newPrice->priceChange = $changeAmount;
+        $newPrice->save();
+    }
+
     private function insertToAdvertisement($REWebPage, $adsInfo, $detailedInfo){
         $advertisement = new Advertisement();
 
@@ -653,21 +462,6 @@ class WebScrapperController extends Controller
         $prices->save();
     }
 
-    private function updateAdvertisementPrices($adsPrice, $id){
-        #updates old price updated_at field, by imitating a change
-        $oldPrice = AdvertisementPrices::where('advertisement_id', $id)->orderBy('id', 'desc')->first();
-        $oldPrice->touch();
-
-        $changeAmount = round((($adsPrice * 100) / $oldPrice->price) - 100, 1);
-
-        #sets new price
-        $newPrice = new AdvertisementPrices();
-        $newPrice->advertisement_id = $id;
-        $newPrice->price = $adsPrice;
-        $newPrice->priceChange = $changeAmount;
-        $newPrice->save();
-    }
-
     private function downloadAdvertisementThumbnail($advertisement) {
         if(strlen($advertisement->thumbnail) > 0){
             $ch = curl_init();
@@ -690,31 +484,6 @@ class WebScrapperController extends Controller
 
             file_put_contents("images/AdvertisementsThumbnails/" . $fileName, $data);
         }
-    }
-
-
-    // tester code (depricated)
-    public function summonMainMethod(){
-        $notifications = Notification::first();
-        $messageAddon = "Pasikeite skelbimo kaina.";
-        $this->createNewMessage($notifications, $messageAddon);
-        /*
-        cho "Test method";
-        echo "<br>";
-
-        $oldPrice = 32500.00;
-        $adsPrice = 32500.00;
-        $changeAmount = round((($adsPrice * 100) / $oldPrice) - 100, 1);
-
-        echo $changeAmount . "%";
-        */
-        /*
-        $imgURL = 'https://www.capital.lt/image/catalog/capital_logo.png';
-        $imgID = 3;
-        $this->downloadWebsiteLogo($imgURL, $imgID);
-        return;
-        */
-        echo "finished test function";
     }
 
     private function downloadWebsiteLogo($url, $id) {
