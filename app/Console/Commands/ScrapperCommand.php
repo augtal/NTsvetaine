@@ -17,11 +17,13 @@ use App\Models\AdvertisementPrices;
 #nekilnojamo turto svetainiu sarasas
 use App\Models\REWebPages;
 use App\Models\REWebsites;
+use App\Traits\ArchiveOldAdvertisemetsTrait;
 
 class ScrapperCommand extends Command
 {
     use FindNotificationsTrait;
     use CreateUserMessageTrait;
+    use ArchiveOldAdvertisemetsTrait;
 
     private $DomoAdsPerPage = 30;
     private $NTportalasAdsPerPage = 25;
@@ -68,10 +70,6 @@ class ScrapperCommand extends Command
      */
     public function handle()
     {
-        $this->info("Scheduled command run");
-        return 0;
-
-
         print "======= Web scrapper started =======\n";
         $REWebsiteList = REWebsites::all();
 
@@ -79,6 +77,7 @@ class ScrapperCommand extends Command
             $this->scrape($website);
         }
 
+        $this->archiveAdvertisements();
         $this->sendNotifications();
 
         print "\n========= End of scrapping =========\n";
@@ -205,11 +204,14 @@ class ScrapperCommand extends Command
                     #patikrinti ar skelbimas is sitos svetaines jau yra
                     $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->where('r_e_websites_id', $website->id)->where('url', $info['url'])->first();
                     if($adID != null){
-                        #atnaujinti kaina
-                        $adID->touch();
-                        AdvertisementDetails::where('advertisement_id', $adID->id)->first()->touch();
-                        $this->updateAdvertisementPrices($info['price'], $adID->id);
-                        $action = "U |";
+                        #jeigu skelbimas nera archyvuotas
+                        if($adID->archived == 0){
+                            #atnaujinti kaina
+                            $adID->touch();
+                            AdvertisementDetails::where('advertisement_id', $adID->id)->first()->touch();
+                            $this->updateAdvertisementPrices($info['price'], $adID->id);
+                            $action = "U |";
+                        }
                     }
                     else{
                         #sukurti nauja
@@ -247,7 +249,6 @@ class ScrapperCommand extends Command
                         $this->insertToAdvertisementPrices($info, $advertisement->id);
                         $action = "C |";
                     }
-                    
                 }
                 $number += 1;
                 $this->report['success']++;

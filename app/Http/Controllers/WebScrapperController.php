@@ -16,11 +16,13 @@ use App\Models\AdvertisementPrices;
 #nekilnojamo turto svetainiu sarasas
 use App\Models\REWebPages;
 use App\Models\REWebsites;
+use App\Traits\ArchiveOldAdvertisemetsTrait;
 
 class WebScrapperController extends Controller
 {
     use FindNotificationsTrait;
     use CreateUserMessageTrait;
+    use ArchiveOldAdvertisemetsTrait;
 
     private $DomoAdsPerPage = 30;
     private $NTportalasAdsPerPage = 25;
@@ -35,6 +37,7 @@ class WebScrapperController extends Controller
             $this->scrape($website);
         }
 
+        $this->archiveAdvertisements();
         $this->sendNotifications();
 
         echo "<br>" . "<br>" . "End of scraping";
@@ -134,11 +137,13 @@ class WebScrapperController extends Controller
                     #patikrinti ar skelbimas is sitos svetaines jau yra
                     $adID = Advertisement::where('title', $info['title'])->where('area', $info['area'])->where('r_e_websites_id', 2)->where('url', $info['url'])->first();
                     if($adID != null){
+                        if($adID->archived == 0){
                         #atnaujinti kaina
                         $adID->touch();
                         AdvertisementDetails::where('advertisement_id', $adID->id)->first()->touch();
                         $this->updateAdvertisementPrices($info['price'], $adID->id);
                         $action = "U |";
+                        }
                     }
                     else{
                         #sukurti nauja
@@ -171,7 +176,6 @@ class WebScrapperController extends Controller
                         $this->insertToAdvertisementPrices($info, $advertisement->id);
                         $action = "C |";
                     }
-                    
                 }
                 $number += 1;
                 echo $action . " finished " . $number . '<br>';
