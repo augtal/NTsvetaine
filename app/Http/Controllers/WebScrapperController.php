@@ -44,7 +44,7 @@ class WebScrapperController extends Controller
     }
 
     private function scrape($website){
-        $websitePages = REWebPages::where('r_e_websites_id', $website->id)->get();
+        $websitePages = REWebPages::where('r_e_websites_id', $website->id)->first();
 
         echo "Start scraping:" . "<br>";
         //domoplius svetaine
