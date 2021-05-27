@@ -4,7 +4,7 @@
 <div class="container">
     @if($users->count() > 0)
         <div>
-            <table style="width:100%">
+            <table class="table table-hover" style="width:100%">
                 <tr>
                     <th>ID</th>
                     <th>Slapyvardis</th>

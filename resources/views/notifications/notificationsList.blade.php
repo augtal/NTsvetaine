@@ -5,7 +5,7 @@
     Pranesimu sarasas
     @if($notifications->count() > 0)
         <div>
-            <table style="width:100%">
+            <table class="table table-hover" style="width:100%">
                 <tr>
                     <th>Pavadinimas</th>
                     <th>Aprašymas</th>
@@ -24,7 +24,7 @@
                         @endif
                     </td>
                     <td>
-                    <a href='/notification/{{$item['id']}}/edit' class="btn btn-warning">Redaguoti</a>
+                    <a href='/notification/{{$item['id']}}/edit' class="btn btn-success">Redaguoti</a>
                     <a href="" data-toggle="modal" data-target="#ModalCenterConfirm" class="btn btn-danger" 
                     onclick="document.getElementById('buttonDeleteConfirm').setAttribute('href', '/notification/{{$item['id']}}/delete');">Pašalinti</a>
                     </td>

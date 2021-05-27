@@ -5,7 +5,7 @@
     Megstamiausiu skelbimu sarasas
     @if(count($data) > 0)
         <div>
-            <table style="width:100%">
+            <table class="table table-hover" style="width:100%">
                 <tr>
                     <th>Nuotrauka</th>
                     <th>Pavadinimas</th>
