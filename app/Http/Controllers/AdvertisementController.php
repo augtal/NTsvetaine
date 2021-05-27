@@ -31,9 +31,7 @@ class AdvertisementController extends Controller
 
             $dataQuery = Advertisement::query()
                     ->where('title', 'LIKE', "%{$searchTerm}%")
-                    ->orWhere('adress', 'LIKE', "%{$searchTerm}%");
-        }
-        else{
+                    ->Where('adress', 'LIKE', "%{$searchTerm}%");
         }
 
         if($filterArray){

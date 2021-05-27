@@ -25,10 +25,11 @@
 
     <div>
         <button id="showFiltersButton" onclick="showFilters()" class="btn btn-success">Filtrai</button>
-
         
         <div id="filter-settings" style="display: none">
             <form action="/" method="GET">
+                <input type="hidden" name="search" id="search" value="{{ $searchTerm }}">
+
                 <div>
                     <label for="min_price">Skelbimo mažiausia kaina: </label>
                     @if (isset($filterData['min_price']))
