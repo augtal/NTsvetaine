@@ -16,13 +16,27 @@
                 </tr>
                 @foreach ($data as $item)
                 <tr>
-                    <td><a href="{{$item['url']}}"><img src="{{$item['thumbnail']}}" style="width: 250px; height:175px"></td></a>
+                    <td>@if ($item['archived'] == 1)
+                        <td class="align-middle">
+                            <div class="d-flex justify-content-center">
+                                <h4>Archyvuota</h4>
+                            </div>
+                        </td>
+                    @else
+                        <td>
+                            @if (file_exists('images/AdvertisementsThumbnails/'.$item['id'].".jpg"))
+                                <a href="{{$item['url']}}"><img src="{{url('images/AdvertisementsThumbnails/'.$item['id'].".jpg")}}" style="width: 250px; height:175px"></a>
+                            @else
+                                <a href="{{$item['url']}}"><img src="{{$item['thumbnail']}}" style="width: 250px; height:175px"></a>
+                            @endif
+                        </td>
+                    @endif
+                    </td>
                     <td><a href="/listing/{{$item['id']}}">{{$item['title']}}</td></a>
                     <td>{{$item->getLastestPrice['price']}} €</td>
                     <td>{{$item->getCategory['title']}}</td>
                     <td>{{$item->getType['title']}}</td>
-                    <td><img src="{{$item->getWebsite['logo']}}" style="width: 150px; height:100px"></td>
-                    </a>
+                    <td><img src="{{url('images/RealEstateWebsiteLogos/'.$item->getWebsite['id'].".png")}}" style="width: 150px; height:30px"></td>
                 </tr>
                 @endforeach
             </table>

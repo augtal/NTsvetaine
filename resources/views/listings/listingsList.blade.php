@@ -206,11 +206,11 @@
 @endsection
 
 @section('script')
-    <script async
+    <script
         src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=drawing,places&region=LTU&language=lt">
     </script>
     <script src="https://unpkg.com/@googlemaps/markerclustererplus/dist/index.min.js"></script>
-    <script>
+    <script async>
         function showFilters() {
             var x = document.getElementById("filter-settings");
             if (x.style.display === "none") {

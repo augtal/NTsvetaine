@@ -101,7 +101,6 @@
             el: '#chart',
             url: "@chart('price_chart')" + "?id={{ $data['id'] }}",
             hooks: new ChartisanHooks()
-                .beginAtZero()
                 .colors()
                 .datasets([{ type: 'line', fill: false, borderColor: "Blue" }]),
         });
