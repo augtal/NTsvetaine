@@ -10,12 +10,12 @@
             @if ($favourite)
                 <form action="/listing/{{$data['id']}}/fav" method="POST" >
                     @csrf
-                    <input type="submit" value="Nepatinka" class="btn btn-danger">
+                    <input type="submit" value="Patinka" class="btn btn-success">
                 </form>
             @else
                 <form action="/listing/{{$data['id']}}/fav" method="POST" >
                     @csrf
-                    <input type="submit" value="Patinka" class="btn btn-success">
+                    <input type="submit" value="Nepatinka" class="btn btn-danger">
                 </form>
             @endif
         </div>
@@ -55,7 +55,7 @@
                 <td>{{$data->getDetails['heating']}}</td>
             </tr>
             <tr>
-                <th>Pasatytmo metai:</th>
+                <th>Pastatymo metai:</th>
                 <td>{{$data->getDetails['year']}}</td>
             </tr>
             <tr>
