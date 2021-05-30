@@ -13,6 +13,12 @@ use App\Models\REWebsites;
 
 class AdvertisementController extends Controller
 {
+    /**
+     * Shows all advertisements
+     *
+     * @param Request $request
+     * @return view listings.listingsList
+     */
     public function showAdvertisementList(Request $request){
         $filterInfo['types'] = AdvertTypes::get();
         $filterInfo['categories'] = AdvertCategories::get();
@@ -46,6 +52,12 @@ class AdvertisementController extends Controller
         return view('listings.listingsList')->with('filterInfo', $filterInfo)->with('filterData', $filterArray)->with('searchTerm', $search)->with('data', $data)->with('mapData', $mapData);
     }
 
+    /**
+     * Shows single advertisement
+     *
+     * @param integer $id Advertisement ID
+     * @return view listings.listing
+     */
     public function showAdvertisement($id){
         $data = Advertisement::where('id', $id)->with('getDetails', 'getLastestPrice')->first();
         
@@ -56,6 +68,12 @@ class AdvertisementController extends Controller
         return view('listings.listing')->with('data', $data)->with('favourite', $favourite);
     }
 
+    /**
+     * Makes advertisement favorite
+     *
+     * @param integer $id Advertisement ID
+     * @return void
+     */
     public function favoritePage($id){
         $likedAd = LikedAdvertisements::where('user_id', auth()->user()->id)->where('advertisement_id', $id)->withTrashed()->first();
 
@@ -79,6 +97,12 @@ class AdvertisementController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * Administrator archives selected advertisement
+     *
+     * @param integer $id Advertisement ID
+     * @return void
+     */
     public function archiveAdvertisement($id){
         $advertisement = Advertisement::find($id);
 
@@ -94,6 +118,13 @@ class AdvertisementController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * Adds filtering to eloquent query
+     *
+     * @param array $filterArray Array that has filter information
+     * @param builder $dataQuery Eloquent builder
+     * @return builder $dataQuery 
+     */
     private function filter($filterArray, $dataQuery){
         if(array_key_exists('min_price', $filterArray) && $filterArray['min_price'] != null){
             $dataQuery->whereHas('getLastestPrice', function ($query) use (&$filterArray) {

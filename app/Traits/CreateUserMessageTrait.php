@@ -15,6 +15,11 @@ use App\Traits\FindNotificationsTrait;
 trait CreateUserMessageTrait {
     use FindNotificationsTrait;
 
+    /**
+     *  Checks if a notification message is needed to be sent
+     *
+     * @return void
+     */
     public function sendNotifications(){
         $notifications = Notification::all();
 
@@ -27,7 +32,7 @@ trait CreateUserMessageTrait {
                     $this->createNewMessage($notification, $messageAddon);
 
                     $notification->advertisement_count = $amount;
-                    //$notification->save();
+                    $notification->save();
                 }
             }
             //2 Kada pasikeicia skelbimu zonoje kaina
@@ -47,6 +52,13 @@ trait CreateUserMessageTrait {
         }
     }
 
+    /**
+     * Creates new notification message
+     *
+     * @param object $notification Notifcation object
+     * @param string $messageAddon Message frenquency addon
+     * @return void
+     */
     private function createNewMessage($notification, $messageAddon){
         $message = "Pranesime " . $notification->title . " atsirado pasikeitimas. " . $messageAddon;
 

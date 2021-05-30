@@ -17,14 +17,20 @@ use App\Models\UserMessages;
 
 class UserController extends Controller
 {
-    public function showProfilePage(){
-        return view('user.profile');
-    }
-
+    /**
+     * Shows profile edit page
+     *
+     * @return view user.profileEdit
+     */
     public function showEditPage(){
         return view('user.profileEdit');
     }
 
+    /**
+     * Shows liked advertisement page
+     *
+     * @return view user.favoriteListings
+     */
     public function showLikedAdsPage(){
         $likedAds = LikedAdvertisements::where('user_id', auth()->user()->id)->get()->toArray();
 
@@ -36,12 +42,23 @@ class UserController extends Controller
         return view('user.favoriteListings')->with('data', $data);
     }
 
+    /**
+     * Shows currently registered users to administrator
+     *
+     * @return view user.usersList
+     */
     public function showUserList(){
         $users = User::get();
 
         return view('user.usersList')->with('users', $users);
     }
 
+    /**
+     * Allows administrator to change other users role
+     *
+     * @param integer $id User ID
+     * @return void
+     */
     public function changeUserRole($id){
         $user = User::where('id', $id)->first();
 
@@ -57,7 +74,12 @@ class UserController extends Controller
         return redirect()->back();
     }
     
-
+    /**
+     * Changes users password
+     *
+     * @param Request $request
+     * @return void
+     */
     public function changePassword(Request $request){
         if(Auth::Check())
         {
@@ -91,6 +113,12 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Validates user password
+     *
+     * @param array $data Password information
+     * @return object $validator Returns validator object
+     */
     private function validatePasswords(array $data)
     {
         $messages = [
@@ -110,8 +138,12 @@ class UserController extends Controller
         return $validator;
     }
 
-    
 
+    /**
+     * Marks all unread messages as read
+     *
+     * @return void
+     */
     public function markAllMessagesRead(){
         $messages = UserMessages::where('user_id', auth()->user()->id)->where('read_msg', 0)->get();
 
@@ -128,6 +160,12 @@ class UserController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * Marks selected message as read
+     *
+     * @param integer $messageID Message ID
+     * @return void
+     */
     public function markMessageRead($messageID){
         $message = UserMessages::find($messageID);
         $message->read_msg = 1;
@@ -144,6 +182,12 @@ class UserController extends Controller
         return redirect('/notification/'. $message['notification_id']);
     }
 
+    /**
+     * Allows administrator to delete selected user
+     *
+     * @param integer $id User ID
+     * @return void
+     */
     public function deleteUser($id){
         $user = User::find($id);
 

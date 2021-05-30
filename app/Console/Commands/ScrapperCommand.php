@@ -87,6 +87,11 @@ class ScrapperCommand extends Command
         return 0;
     }
 
+    /**
+     * Creates webscrapping report in console
+     *
+     * @return void
+     */
     private function showReport(){
         print "============== Report ==============\n";
 
@@ -112,6 +117,12 @@ class ScrapperCommand extends Command
         print "\n=========== End of Report ==========\n";
     }
 
+    /**
+     * Gets all website webpages that needs scrapping
+     *
+     * @param object $website Real estate website information from database
+     * @return void
+     */
     private function scrape($website){
         $websitePages = REWebPages::where('r_e_websites_id', $website->id)->get();
         
@@ -127,6 +138,13 @@ class ScrapperCommand extends Command
         }
     }
 
+    /**
+     * Main method for scraping real estate websites
+     *
+     * @param object $REWebPage Real estate website advertisement page information from database
+     * @param object $website Real estate website information from database
+     * @return void
+     */
     private function scrapeREWebsite($REWebPage, $website){
         $client = new Client();
         $crawler = $client->request('GET', $REWebPage['url']);
@@ -258,6 +276,12 @@ class ScrapperCommand extends Command
         return;
     }
 
+    /**
+     * Gets advertisement list primary information, without going into seperate advertisements
+     *
+     * @param object $crawler Webscrapper instance
+     * @return array $adsInfo Scraped advertisements information
+     */
     private function getDomoPageAdsInfo($crawler){
         $adsInfo = Array();
 
@@ -286,6 +310,13 @@ class ScrapperCommand extends Command
         return $adsInfo;
     }
 
+    /**
+     * Exracts information from a single advertisement from domoplius.lt website
+     *
+     * @param object $client Webscrapper instance
+     * @param string $link Advertisements URL
+     * @return array $results Returns scraped data from advertisement
+     */
     private function scrapeDomoSingle($client, $link){
         $results = Array();
         $crawler = $client->request('GET', $link);
@@ -337,6 +368,12 @@ class ScrapperCommand extends Command
         return $results;
     } 
 
+    /**
+     * Fixes scraped data from advertisement so that it's ready to be inserted to database
+     *
+     * @param array $oldResults 
+     * @return array $fixed Returns fixed array results
+     */
     private function fixResultsDomo($oldResults){
         $fixed = Array();
 
@@ -389,6 +426,12 @@ class ScrapperCommand extends Command
         return $fixed;
     }
 
+    /**
+     * Gets advertisement list primary information, without going into seperate advertisements
+     *
+     * @param object $crawler Webscrapper instance
+     * @return array $adsInfo Scraped advertisements information
+     */
     private function getCapitalPageAdsInfo($crawler){
         $adsInfo = Array();
 
@@ -425,6 +468,13 @@ class ScrapperCommand extends Command
         return $adsInfo;
     }
 
+    /**
+     * Exracts information from a single advertisement from capital.lt website
+     *
+     * @param object $client Webscrapper instance
+     * @param string $link Advertisements URL
+     * @return array $results Returns scraped data from advertisement
+     */
     private function scrapeCapitalSingle($client, $link){
         $results = Array();
         $crawler = $client->request('GET', $link);
@@ -460,6 +510,12 @@ class ScrapperCommand extends Command
         return $results;
     } 
 
+    /**
+     * Fixes scraped data from advertisement so that it's ready to be inserted to database
+     *
+     * @param array $oldResults 
+     * @return array $fixed Returns fixed array results
+     */
     private function fixResultsCapital($oldResults){
         $fixed = Array();
 
@@ -514,6 +570,13 @@ class ScrapperCommand extends Command
         return $fixed;
     }
 
+    /**
+     * Updates advertisement price with a new scraped value
+     *
+     * @param double $adsPrice Scraped advertisement price
+     * @param integer $id Advertisement ID
+     * @return void
+     */
     private function updateAdvertisementPrices($adsPrice, $id){
         #atnaujinti sena kainu lauka
         $oldPrice = AdvertisementPrices::where('advertisement_id', $id)->orderBy('id', 'desc')->first();
@@ -529,6 +592,14 @@ class ScrapperCommand extends Command
         $newPrice->save();
     }
 
+    /**
+     * Inserts advertisement to database
+     *
+     * @param object $REWebPage Real estate website advertisement page information from database
+     * @param array $adsInfo Primary scrape data
+     * @param array $detailedInfo Detailed single advertisement scrape data
+     * @return object $advertisement Returns inserted advertisement object
+     */
     private function insertToAdvertisement($REWebPage, $adsInfo, $detailedInfo){
         $advertisement = new Advertisement();
 
@@ -545,6 +616,13 @@ class ScrapperCommand extends Command
         return $advertisement;
     }
 
+    /**
+     * Inserts advertisement location to database
+     *
+     * @param array $detailedInfo Detailed single advertisement scrape data
+     * @param integer $id Advertisement ID
+     * @return void
+     */
     private function insertToAdvertisementLocation($detailedInfo, $id){
         $location = new AdvertisementLocation();
 
@@ -554,6 +632,13 @@ class ScrapperCommand extends Command
         $location->save();
     }
 
+    /**
+     * Inserts advertisement details to database
+     *
+     * @param array $detailedInfo Detailed single advertisement scrape data
+     * @param integer $id Advertisement ID
+     * @return void
+     */
     private function insertToAdvertisementDetails($detailedInfo, $id){
         $details = new AdvertisementDetails();
 
@@ -567,6 +652,13 @@ class ScrapperCommand extends Command
         $details->save();
     }
 
+    /**
+     * Inserts advertisement price to database
+     *
+     * @param array $adsInfo Primary scrape data
+     * @param integer $id Advertisement ID
+     * @return void
+     */
     private function insertToAdvertisementPrices($adsInfo, $id){
         $prices = new AdvertisementPrices();
 
@@ -576,6 +668,12 @@ class ScrapperCommand extends Command
         $prices->save();
     }
 
+    /**
+     * Downloads advertisement thumbnail and saves it to public/images/AdvertisementsThumbnails/ directory
+     *
+     * @param object $advertisement Advertisement information
+     * @return void
+     */
     private function downloadAdvertisementThumbnail($advertisement) {
         if(strlen($advertisement->thumbnail) > 0){
             $ch = curl_init();
@@ -600,6 +698,13 @@ class ScrapperCommand extends Command
         }
     }
 
+    /**
+     * Downloads website logo and saves it to public/images/RealEstateWebsiteLogos directory
+     *
+     * @param string $url Website logo url
+     * @param integer $id Website ID that it's saved in database
+     * @return void
+     */
     private function downloadWebsiteLogo($url, $id) {
         if(strlen($url) > 0){
             $ch = curl_init();

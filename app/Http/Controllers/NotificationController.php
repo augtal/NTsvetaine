@@ -15,12 +15,23 @@ class NotificationController extends Controller
 {
     use FindNotificationsTrait;
 
+    /**
+     * Shows all notifications
+     *
+     * @return view notifications.notificationsList
+     */
     public function showNotificationsList(){
         $data = Notification::where('user_id', auth()->user()->id)->get();
 
         return view('notifications.notificationsList')->with('notifications', $data);
     }
 
+    /**
+     * Shows single notification
+     *
+     * @param integer $id Notification ID
+     * @return view notifications.notification
+     */
     public function showNotification($id){
         $notificationData = Notification::where('id', $id)->first();
         $mapData = Advertisement::with('getLocation')->get();
@@ -33,6 +44,12 @@ class NotificationController extends Controller
         return view('notifications.notification')->with('advertisements', $advertisements)->with('mapData', $mapData)->with('notificationData', $notificationData)->with('shapesData', $shapesData);
     }
 
+    /**
+     * Shows notification final confimation page
+     *
+     * @param Request $request
+     * @return view notifications.notificationConfirm
+     */
     public function showNotificationConfirmPage(Request $request){
         if($request->input('saveShapesValues')){
             $shapesData = json_decode($request->input('saveShapesValues'), true);
@@ -45,6 +62,12 @@ class NotificationController extends Controller
         return view('notifications.notificationConfirm')->with('mapData', $mapData)->with('shapesData', $shapesData);
     }
 
+    /**
+     * Saves notification to database
+     *
+     * @param Request $request
+     * @return redirect notifications
+     */
     public function saveNotification(Request $request){
         $data = $request->All();
 
@@ -65,6 +88,12 @@ class NotificationController extends Controller
         return redirect('notifications');
     }
 
+    /**
+     * Shows notification edit page
+     *
+     * @param integer $id Notification ID
+     * @return view notifications.notificationEdit
+     */
     public function showEditNotificationPage($id){
         $data = Notification::where('id', $id)->first();
         $mapData = Advertisement::with('getLocation')->get();
@@ -74,6 +103,13 @@ class NotificationController extends Controller
         return view('notifications.notificationEdit')->with('mapData', $mapData)->with('shapesData', $shapesData)->with('data', $data);
     }
 
+    /**
+     * Save notifcation changes to database
+     *
+     * @param Request $request
+     * @param integer $id Notification ID
+     * @return redirect notifications
+     */
     public function editNotification(Request $request, $id){
         $data = $request->All();
     
@@ -88,6 +124,12 @@ class NotificationController extends Controller
         return redirect('notifications');
     }
 
+    /**
+     * Daletes notification from database
+     *
+     * @param integer $id Notification ID
+     * @return void
+     */
     public function deleteNotification($id){
         $notification = Notification::where('id', $id)->first();
 

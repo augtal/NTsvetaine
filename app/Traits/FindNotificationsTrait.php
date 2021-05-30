@@ -7,6 +7,12 @@ use App\Models\AdvertisementLocation;
 use App\Models\NotificationAdvertisements;
 
 trait FindNotificationsTrait {
+    /**
+     * Finds out if advertisement is inside notification shape if inside add it to that notification
+     *
+     * @param object $notification
+     * @return integer $foundAmount Amount of advertisements found
+     */
     public function findAdsInsideNotification($notification){
         $shapes = json_decode($notification->shapes, true);
         $foundAmount = 0;
@@ -62,6 +68,14 @@ trait FindNotificationsTrait {
         return $foundAmount;
     }
 
+    /**
+     * Calculates max / min column value
+     *
+     * @param array $array Array in which to search
+     * @param string $prop Column name by which to search
+     * @param string $func Function by which to search (max/min)
+     * @return integer $result Returns found value, if nothing is found returns false
+     */
     private function calcAttributeArray($array, $prop, $func) {
         $result = array_column($array, $prop);
     
@@ -71,6 +85,13 @@ trait FindNotificationsTrait {
         return false;
     }
 
+    /**
+     * Checks if a point is inside a polygon
+     *
+     * @param array $point Point that is tested
+     * @param array $vertices Poligons veritices
+     * @return boolean
+     */
     private function pointInPolygon($point, $vertices) {
         if ($this->pointOnVertex($point, $vertices)) return true;
 
@@ -116,14 +137,29 @@ trait FindNotificationsTrait {
         }
     }
 
+    /**
+     * Checks if point is a poligons vertex
+     *
+     * @param array $point Point that is tested
+     * @param array $vertices Poligons veritices
+     * @return boolean
+     */
     private function pointOnVertex($point, $vertices) {
         foreach($vertices as $vertex) {
             if ($point['lat'] == $vertex['lat'] && $point['lng'] == $vertex['lng']) {
                 return true;
             }
         }
+        return false;
     }
 
+    /**
+     * Checks if a point is inside a circle
+     *
+     * @param array $point Point that is tested
+     * @param array $circle Circle information
+     * @return void
+     */
     private function pointInCircle($point, $circle){
         //pritaikysime Haversine formule
         $earth_radius = 6371;

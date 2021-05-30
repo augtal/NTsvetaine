@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Mail;
 
 class MailController extends Controller
 {
+    /**
+     * Depricated method
+     *
+     * @return void
+     */
     public function sendMail()
     {    
         //Mail::to('john.doe@gmail.com')->send(new NotificationUpdateSend());
