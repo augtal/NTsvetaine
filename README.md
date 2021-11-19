@@ -1,5 +1,5 @@
 # Nekilnojamo turto skelbimu surinkimo informacine sistema
-![Alt text](/public/screenshots/REklamine.jpg?raw=true "Reklamine")
+![Alt text](/public/screenshots/Reklamine.jpg "Reklamine")
 
 
 
