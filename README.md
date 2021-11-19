@@ -1,20 +1,20 @@
 # Nekilnojamo turto skelbimu surinkimo informacine sistema
-![Reklamine](/public/screenshots/Reklamine.jpg "Reklamine")
+![Reklamine](/public/screenshots/Reklamine.jpg)
 
 ## Svetaines pagrindinis puslapis
-![VisaSvetaine](/public/screenshots/Visa svetaine.jpg "VisaSvetaine")
+![VisaSvetaine](/public/screenshots/VisaSvetaine.jpg)
 
 ## Norimos stebeti zonos pasirinkimas
-![ZonosPasirinkimas](/public/screenshots/Zonos pasirinkimas.jpg "ZonosPasirinkimas")
+![ZonosPasirinkimas](/public/screenshots/ZonosPasirinkimas.jpg)
 
 ## Stebimos zonos perziura
-![StebimosZonosPerziura](/public/screenshots/Stebimos zonos perziura.jpg "StebimosZonosPerziura")
+![StebimosZonosPerziura](/public/screenshots/StebimosZonosPerziura.jpg)
 
 ## Naujo skelbimo atsiradimas stebimoje zonone
-![NaujasPranesimas](/public/screenshots/Naujas pranesimas.jpg "NaujasPranesimas")
+![NaujasPranesimas](/public/screenshots/NaujasPranesimas.jpg)
 
 ## Issami skelbimo informacija
-![IssamusSkelbimas](/public/screenshots/Issamus skelbimas.jpg "IssamusSkelbimas")
+![IssamusSkelbimas](/public/screenshots/IssamusSkelbimas.jpg)
 
 ## Projektas naudoja
 WebScrapper
